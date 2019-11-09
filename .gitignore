@@ -6,6 +6,7 @@ paket-files/
 publish/
 src/visualizer-console/*.graphviz
 src/visualizer-console/*.png
+temp-gh-pages/
 bin/
 obj/
 yarn-error.log

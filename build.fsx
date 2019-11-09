@@ -22,6 +22,7 @@ open Fake.Tools.Git
 let [<Literal>] private VISUALIZATION_FILENAME = "visualization.png" // keep synchronized with ./src/visualizer-console/visualizer.fs
 
 let private uiDir = Path.getFullName "./src/ui"
+let private uiPublicDir = uiDir </> "public"
 let private uiPublishDir = uiDir </> "publish"
 
 let private devConsoleDir = Path.getFullName "./src/dev-console"
@@ -67,6 +68,13 @@ Target.create "restore" (fun _ ->
     runTool yarnTool "install --frozen-lockfile" __SOURCE_DIRECTORY__
     runDotNet "restore" uiDir)
 
+Target.create "run-visualizer-console" (fun _ -> runDotNet "run" visualizerConsoleDir)
+
+Target.create "copy-visualization-file" (fun _ ->
+    let visualizationFile = visualizerConsoleDir </> VISUALIZATION_FILENAME
+    if File.exists visualizationFile then
+        Shell.copyFile (uiPublicDir </> VISUALIZATION_FILENAME) visualizationFile)
+
 Target.create "run" (fun _ ->
     let client = async { runTool yarnTool "webpack-dev-server" __SOURCE_DIRECTORY__ }
     let browser = async {
@@ -87,19 +95,18 @@ Target.create "publish-gh-pages" (fun _ ->
 
 Target.create "run-dev-console" (fun _ -> runDotNet "run" devConsoleDir)
 
-Target.create "run-visualizer-console" (fun _ -> runDotNet "run" visualizerConsoleDir)
-
 Target.create "help" (fun _ ->
     printfn "\nThese useful build targets can be run via 'fake build -t {target}':"
     printfn "\n\trun -> builds, runs and watches [non-production] ui (served via webpack-dev-server)"
     printfn "\n\tbuild -> builds [production] ui (which writes output to .\\src\\ui\\publish)"
     printfn "\n\tpublish-gh-pages -> builds [production] ui, then pushes to gh-pages branch"
     printfn "\n\trun-dev-console -> builds and runs [Debug] dev-console"
-    printfn "\n\trun-visualizer-console -> builds and runs [Debug] visualizer-console (which TODO-NMB...)"
+    printfn "\n\trun-visualizer-console -> builds and runs [Debug] visualizer-console (which writes output to .\\src\\visualizer-console)"
     printfn "\n\thelp -> shows this list of build targets\n")
 
 "clean" ==> "restore"
-"restore" ==> "run"
-"restore" ==> "build" ==> "publish-gh-pages"
+"run-visualizer-console" ==> "copy-visualization-file"
+"restore" ==> "copy-visualization-file" ==> "run"
+"restore" ==> "copy-visualization-file" ==> "build" ==> "publish-gh-pages"
 
 Target.runOrDefaultWithArguments "help"

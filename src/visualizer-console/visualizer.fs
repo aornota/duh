@@ -2,6 +2,8 @@
 
 module Aornota.Duh.VisualizerConsole.Visualizer
 
+open Aornota.Duh.Common.Domain
+open Aornota.Duh.Common.ExampleData
 open Aornota.Duh.Common.SourcedLogger
 
 open System
@@ -9,9 +11,6 @@ open System.Diagnostics
 open System.IO
 
 open Serilog
-
-// TODO-NMB: Use (Aornota.Duh.Common) type/s...
-type private DependencySet = { Dependent : string ; Dependencies : string Set }
 
 let [<Literal>] private GRAPH_VIZ__DOT_EXE = @"C:\Program Files (x86)\Graphviz2.38\bin\dot.exe"
 let [<Literal>] private GRAPH_VIZ__INPUT_FILENAME = "visualization.dot.graphviz"
@@ -24,17 +23,12 @@ let private quoteName n = sprintf "\"%s\"" n
 
 let private toCsv separator items = match items with | [] -> String.Empty | _ -> List.reduce (fun item1 item2 -> sprintf "%s%s%s" item1 separator item2) items
 
-let private writeDependencySet writer dependencySet =
-    let fromNode = quoteName dependencySet.Dependent
-    let toNodes =
-        dependencySet.Dependencies
-        |> Seq.map quoteName
-        |> Seq.sort
-        |> Seq.toList
-        |> toCsv "; "
+let private writeProjectDependencies writer (projectDependencies:ProjectDependencies) =
+    let fromNode = quoteName (projectOrPackageName projectDependencies.ProjectOrPackage)
+    let toNodes = projectDependencies.PackageReferences |> Seq.map (fun (Package project) -> quoteName project.Name) |> Seq.sort |> Seq.toList |> toCsv "; "
     fprintfn writer "   %s -> { rank=none; %s }" fromNode toNodes
 
-let private createGraphvizInputFile (logger:ILogger) (inputFile:string) dependencySets =
+let private createGraphvizInputFile (logger:ILogger) (inputFile:string) projectsDependencies =
     logger.Information("Creating Graphviz input file {inputFile} from dependencies", inputFile)
     use writer = new StreamWriter(path=inputFile)
     fprintfn writer "digraph G {"
@@ -42,11 +36,10 @@ let private createGraphvizInputFile (logger:ILogger) (inputFile:string) dependen
     fprintfn writer "    ratio=auto;"
     fprintfn writer "    rankdir=LR;"
     fprintfn writer "    fontsize=10;"
-    dependencySets |> Seq.sort |> Seq.iter (writeDependencySet writer)
-    dependencySets |> Seq.iter (fun dependencySet->
-        let fromNode = quoteName dependencySet.Dependent
-        // TODO-NMB: Colours...
-        let colour = fromNode
+    projectsDependencies |> Seq.sortBy (fun projectDependencies -> projectOrPackageName projectDependencies.ProjectOrPackage) |> Seq.iter (writeProjectDependencies writer)
+    projectsDependencies |> Seq.iter (fun projectDependencies->
+        let fromNode = quoteName (projectOrPackageName projectDependencies.ProjectOrPackage)
+        let colour = quoteName (projectOrPackageColour projectDependencies.ProjectOrPackage)
         fprintfn writer "   %s [color=%s,style=filled];" fromNode colour)
     fprintfn writer "   }"
 
@@ -77,16 +70,8 @@ let private generateVisualizationFile (logger:ILogger) (inputFile:string) (visua
 let visualize logger =
     let logger = logger |> sourcedLogger SOURCE
 
-    let dependencySets = seq {
-        { Dependent = "grey" ; Dependencies = [] |> Set.ofList }
-        { Dependent = "lightblue" ; Dependencies = [] |> Set.ofList }
-        { Dependent = "green" ; Dependencies = [ "lightblue" ; "grey" ] |> Set.ofList }
-        { Dependent = "red" ; Dependencies = [ "grey" ] |> Set.ofList }
-        { Dependent = "yellow" ; Dependencies = [ "green" ; "lightred" ] |> Set.ofList }
-    }
-
     let inputFile = Path.Combine(__SOURCE_DIRECTORY__, GRAPH_VIZ__INPUT_FILENAME)
-    createGraphvizInputFile logger inputFile dependencySets
+    createGraphvizInputFile logger inputFile projectsDependencies
 
     let visualizationFile = Path.Combine(__SOURCE_DIRECTORY__, VISUALIZATION_FILENAME)
     generateVisualizationFile logger inputFile visualizationFile

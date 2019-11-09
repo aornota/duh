@@ -40,12 +40,8 @@ let private mainAsync argv = async {
         visualize logger
     with | exn -> sourcedLogger.Error("Unexpected error -> {errorMessage}\n{stackTrace}", exn.Message, exn.StackTrace)
 
-    // #region "Press any key to exit..."
-    writeNewLine "Press any key to exit..." ConsoleColor.Green
-    Console.ReadKey() |> ignore
     writeBlankLine()
     return 0
-    // #endregion
 }
 
 [<EntryPoint>]

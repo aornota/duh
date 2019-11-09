@@ -5,7 +5,3 @@ group console
 	Serilog
     Serilog.Settings.Configuration
 	Serilog.Sinks.Console
-
-group dev-console
-
-    Thoth.Json.Net

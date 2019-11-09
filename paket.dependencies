@@ -31,7 +31,7 @@ group ui
     nuget Fable.React
     github krauthaufen/Fable.Elmish.Adaptive
 
-group dev-console
+group console
 
     source https://api.nuget.org/v3/index.json
     framework: netcoreapp3.0
@@ -42,4 +42,11 @@ group dev-console
 	nuget Serilog
 	nuget Serilog.Settings.Configuration
 	nuget Serilog.Sinks.Console
+
+group dev-console
+
+    source https://api.nuget.org/v3/index.json
+    framework: netcoreapp3.0
+    storage: none
+
     nuget Thoth.Json.Net

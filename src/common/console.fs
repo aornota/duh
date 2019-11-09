@@ -1,4 +1,4 @@
-module Aornota.Duh.DevConsole.Console
+module Aornota.Duh.Common.Console
 
 open System
 

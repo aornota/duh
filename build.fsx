@@ -19,10 +19,13 @@ open Fake.IO.FileSystemOperators
 open Fake.IO.Globbing.Operators
 open Fake.Tools.Git
 
+let [<Literal>] private VISUALIZATION_FILENAME = "visualization.png" // keep synchronized with ./src/visualizer-console/visualizer.fs
+
 let private uiDir = Path.getFullName "./src/ui"
 let private uiPublishDir = uiDir </> "publish"
 
 let private devConsoleDir = Path.getFullName "./src/dev-console"
+let private visualizerConsoleDir = Path.getFullName "./src/visualizer-console"
 
 let private platformTool tool winTool =
     let tool = if Environment.isUnix then tool else winTool
@@ -84,12 +87,15 @@ Target.create "publish-gh-pages" (fun _ ->
 
 Target.create "run-dev-console" (fun _ -> runDotNet "run" devConsoleDir)
 
+Target.create "run-visualizer-console" (fun _ -> runDotNet "run" visualizerConsoleDir)
+
 Target.create "help" (fun _ ->
     printfn "\nThese useful build targets can be run via 'fake build -t {target}':"
     printfn "\n\trun -> builds, runs and watches [non-production] ui (served via webpack-dev-server)"
     printfn "\n\tbuild -> builds [production] ui (which writes output to .\\src\\ui\\publish)"
     printfn "\n\tpublish-gh-pages -> builds [production] ui, then pushes to gh-pages branch"
     printfn "\n\trun-dev-console -> builds and runs [Debug] dev-console"
+    printfn "\n\trun-visualizer-console -> builds and runs [Debug] visualizer-console (which TODO-NMB...)"
     printfn "\n\thelp -> shows this list of build targets\n")
 
 "clean" ==> "restore"

@@ -1,7 +1,8 @@
-﻿module Aornota.Duh.DevConsole.Program
+﻿module Aornota.Duh.VisualizerConsole.Program
 
 open Aornota.Duh.Common.Console
 open Aornota.Duh.Common.SourcedLogger
+open Aornota.Duh.VisualizerConsole.Visualizer
 
 open System
 
@@ -11,7 +12,7 @@ open Giraffe.SerilogExtensions
 
 open Serilog
 
-let [<Literal>] private SOURCE = "DevConsole.Program"
+let [<Literal>] private SOURCE = "VisualizerConsole.Program"
 
 let private configuration =
     ConfigurationBuilder()
@@ -35,18 +36,9 @@ let private mainAsync argv = async {
     // #endregion
 
     try
-        // #region Logging examples
-        (* TEMP-NMB... *)
-        writeNewLine "\nLogging examples:\n" ConsoleColor.Magenta
-        let test = Some 3.14
-        sourcedLogger.Debug("This is a debug message")
-        sourcedLogger.Information("This is an information message: {test}", test)
-        sourcedLogger.Warning("This is a warning message")
-        failwith "Fake error. Sad!"
-        // #endregion
-
-        // TODO-NMB...
-    with | exn -> sourcedLogger.Error("Unexpected error: {errorMessage}\n{stackTrace}", exn.Message, exn.StackTrace)
+        writeNewLine "\nvisualize:\n" ConsoleColor.Magenta
+        visualize logger
+    with | exn -> sourcedLogger.Error("Unexpected error -> {errorMessage}\n{stackTrace}", exn.Message, exn.StackTrace)
 
     // #region "Press any key to exit..."
     writeNewLine "Press any key to exit..." ConsoleColor.Green

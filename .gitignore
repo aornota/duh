@@ -4,7 +4,8 @@
 node_modules/
 paket-files/
 publish/
+src/visualizer-console/*.graphviz
+src/visualizer-console/*.png
 bin/
 obj/
-logs/
 yarn-error.log

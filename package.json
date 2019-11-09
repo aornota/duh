@@ -5,10 +5,6 @@
     "repository": "git@github.com:aornota/duh.git",
     "author": "dj narration",
     "license": "Unlicense",
-    "scripts": {
-        "build": "webpack -p",
-        "start": "webpack-dev-server"
-    },
     "dependencies": {
         "react": "^16.11.0",
         "react-dom": "^16.11.0"

@@ -2,4 +2,6 @@
 
 Work-in-progress experiments with FSharp.Data.Adaptive &c. (adapted from [Peter Keše's example](https://github.com/pkese/Fable.React.Adaptive.Counter)).
 
+[Check it out!](https://aornota.github.io/duh/).
+
 ### To do...

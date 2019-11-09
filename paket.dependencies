@@ -1,0 +1,32 @@
+version 5.226.0
+
+group build
+
+    source https://api.nuget.org/v3/index.json
+    framework: netstandard2.0
+    storage: none
+
+    nuget FSharp.Core
+    nuget Fake.Core.Environment
+    nuget Fake.Core.Target
+    nuget Fake.Core.Trace
+    nuget Fake.DotNet.Cli
+    nuget Fake.IO.FileSystem
+    nuget Fake.Tools.Git
+
+group ui
+
+    source https://api.nuget.org/v3/index.json
+    framework: netstandard2.0
+    storage: none
+
+    nuget FSharp.Data.Adaptive ~> 0.0.5-prerelease06
+    nuget Adaptify.MSBuild ~> 0.0.2
+    nuget Fable.Core
+    nuget Fable.Browser.Dom
+    nuget Fable.Browser.Event
+    nuget Fable.Elmish
+    nuget Fable.Elmish.HMR
+    nuget Fable.Elmish.React
+    nuget Fable.React
+    github krauthaufen/Fable.Elmish.Adaptive

@@ -1,0 +1,12 @@
+.fable/
+.fake/
+.ionide/
+node_modules/
+paket-files/
+publish/
+bin/
+obj/
+logs/
+appsettings.development.json
+appsettings.production.json
+yarn-error.log

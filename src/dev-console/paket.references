@@ -1,0 +1,8 @@
+group dev-console
+
+	FSharp.Core
+    Giraffe.SerilogExtensions
+	Serilog
+    Serilog.Settings.Configuration
+	Serilog.Sinks.Console
+    Thoth.Json.Net

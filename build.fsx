@@ -22,6 +22,8 @@ open Fake.Tools.Git
 let private uiDir = Path.getFullName "./src/ui"
 let private uiPublishDir = uiDir </> "publish"
 
+let private devConsoleDir = Path.getFullName "./src/dev-console"
+
 let private platformTool tool winTool =
     let tool = if Environment.isUnix then tool else winTool
     match ProcessUtils.tryFindFileOnPath tool with
@@ -80,11 +82,14 @@ Target.create "publish-gh-pages" (fun _ ->
     Commit.exec tempGhPagesDir (sprintf "Publish gh-pages (%s)" (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")))
     Branches.push tempGhPagesDir)
 
+Target.create "run-dev-console" (fun _ -> runDotNet "run" devConsoleDir)
+
 Target.create "help" (fun _ ->
     printfn "\nThese useful build targets can be run via 'fake build -t {target}':"
     printfn "\n\trun -> builds, runs and watches [non-production] ui (served via webpack-dev-server)"
     printfn "\n\tbuild -> builds [production] ui (which writes output to .\\src\\ui\\publish)"
     printfn "\n\tpublish-gh-pages -> builds [production] ui, then pushes to gh-pages branch"
+    printfn "\n\trun-dev-console -> builds and runs [Debug] dev-console"
     printfn "\n\thelp -> shows this list of build targets\n")
 
 "clean" ==> "restore"

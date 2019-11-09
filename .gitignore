@@ -7,6 +7,4 @@ publish/
 bin/
 obj/
 logs/
-appsettings.development.json
-appsettings.production.json
 yarn-error.log

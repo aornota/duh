@@ -3,7 +3,7 @@
 module Aornota.Duh.VisualizerConsole.Visualizer
 
 open Aornota.Duh.Common.Domain
-open Aornota.Duh.Common.ExampleData
+open Aornota.Duh.Common.ProjectDependencyData
 open Aornota.Duh.Common.SourcedLogger
 
 open System
@@ -25,7 +25,12 @@ let private toCsv separator items = match items with | [] -> String.Empty | _ ->
 
 let private writeProjectDependencies writer (projectDependencies:ProjectDependencies) =
     let fromNode = quoteName (projectOrPackageName projectDependencies.ProjectOrPackage)
-    let toNodes = projectDependencies.PackageReferences |> Seq.map (fun (Package project) -> quoteName project.Name) |> Seq.sort |> Seq.toList |> toCsv "; "
+    let toNodes =
+        projectDependencies.PackageReferences
+        |> Seq.map (fun (Package project) -> quoteName project.Name)
+        |> Seq.sort
+        |> Seq.toList
+        |> toCsv "; "
     fprintfn writer "   %s -> { rank=none; %s }" fromNode toNodes
 
 let private createGraphvizInputFile (logger:ILogger) (inputFile:string) projectsDependencies =
@@ -36,8 +41,11 @@ let private createGraphvizInputFile (logger:ILogger) (inputFile:string) projects
     fprintfn writer "    ratio=auto;"
     fprintfn writer "    rankdir=LR;"
     fprintfn writer "    fontsize=10;"
-    projectsDependencies |> Seq.sortBy (fun projectDependencies -> projectOrPackageName projectDependencies.ProjectOrPackage) |> Seq.iter (writeProjectDependencies writer)
-    projectsDependencies |> Seq.iter (fun projectDependencies->
+    projectsDependencies
+    |> Seq.sortBy (fun projectDependencies -> projectOrPackageName projectDependencies.ProjectOrPackage)
+    |> Seq.iter (writeProjectDependencies writer)
+    projectsDependencies
+    |> Seq.iter (fun projectDependencies->
         let fromNode = quoteName (projectOrPackageName projectDependencies.ProjectOrPackage)
         let colour = quoteName (projectOrPackageColour projectDependencies.ProjectOrPackage)
         fprintfn writer "   %s [color=%s,style=filled];" fromNode colour)

@@ -1,29 +1,30 @@
-module Aornota.Duh.Common.ExampleData
+module Aornota.Duh.Common.ProjectDependencyData
 
 open Aornota.Duh.Common.Domain
 
 // #region Solutions
 
-let domainSln = { Name = "Domain" ; Repo = AzureDevOps ; Colour = Grey }
-let repositorySln = { Name = "Repository" ; Repo = AzureDevOps ; Colour = Yellow }
-let toolsSln = { Name = "Tools" ; Repo = Subversion ; Colour = Pink }
+let domainSln = { Name = "Domain" ; Repo = AzureDevOps ; RootPath = "source" ; Colour = Grey }
+let infrastructureSln = { Name = "Infrastructure" ; Repo = AzureDevOps ; RootPath = "source" ; Colour = SlateGrey }
+
+let sharedSln = { Name = "Shared" ; Repo = Subversion ; RootPath = "Shared" ; Colour = SeaGreen }
 
 // #endregion
 
 // #region Projects:
 
-let commonInterfacesProj = { Name = "Common.Interfaces" ; Solution = domainSln }
-let commonModelsProj = { Name = "Common.Models" ; Solution = domainSln }
-let commonExtensionsProj = { Name = "Common.Extensions" ; Solution = domainSln }
-let productInterfacesProj = { Name = "Product.Interfaces" ; Solution = domainSln }
-let productModelsProj = { Name = "Product.Models" ; Solution = domainSln }
-let orderInterfacesProj = { Name = "Order.Interfaces" ; Solution = domainSln }
-let orderModelsProj = { Name = "Order.Models" ; Solution = domainSln }
-let infrastructureInterfacesProj = { Name = "Infrastructure.Interfaces" ; Solution = domainSln }
+let commonInterfacesProj = { Name = "Common.Interfaces" ; Solution = domainSln ; ExtraPath = None }
+let commonModelsProj = { Name = "Common.Models" ; Solution = domainSln ; ExtraPath = None }
+let commonExtensionsProj = { Name = "Common.Extensions" ; Solution = domainSln ; ExtraPath = None }
+let productInterfacesProj = { Name = "Product.Interfaces" ; Solution = domainSln ; ExtraPath = None }
+let productModelsProj = { Name = "Product.Models" ; Solution = domainSln ; ExtraPath = None }
+let orderInterfacesProj = { Name = "Order.Interfaces" ; Solution = domainSln ; ExtraPath = None }
+let orderModelsProj = { Name = "Order.Models" ; Solution = domainSln ; ExtraPath = None }
+let infrastructureInterfacesProj = { Name = "Infrastructure.Interfaces" ; Solution = domainSln ; ExtraPath = None }
 
-let repositoryProj = { Name = "Repository" ; Solution = repositorySln }
+let repositoriesProj = { Name = "Repositories" ; Solution = infrastructureSln ; ExtraPath = None }
 
-let toolsProj = { Name = "Tools" ; Solution = toolsSln }
+let toolsProj = { Name = "Tools" ; Solution = sharedSln ; ExtraPath = Some "Non Production" }
 
 // #endregion
 
@@ -38,16 +39,16 @@ let orderInterfacesPack = Package orderInterfacesProj
 let orderModelsPack = Package orderModelsProj
 let infrastructureInterfacesPack = Package infrastructureInterfacesProj
 
-let repositoryPack = Package repositoryProj
+let repositoriesPack = Package repositoriesProj
+
+// toolsProj is not a Package
 
 let packages = [
     commonInterfacesPack ; commonModelsPack ; commonExtensionsPack
     productInterfacesPack ; productModelsPack
     orderInterfacesPack ; orderModelsPack
     infrastructureInterfacesPack
-    repositoryPack ]
-
-// toolsProj is not a Package
+    repositoriesPack ]
 
 // #endregion
 
@@ -62,7 +63,7 @@ let orderInterfacesDeps = { ProjectOrPackage = Pack orderInterfacesPack ; Packag
 let orderModelsDeps = { ProjectOrPackage = Pack orderModelsPack ; PackageReferences = [ orderInterfacesPack ; productModelsPack ] |> Set.ofList }
 let infrastructureInterfacesDeps = { ProjectOrPackage = Pack infrastructureInterfacesPack ; PackageReferences = [ orderInterfacesPack ] |> Set.ofList }
 
-let repositoryDeps = { ProjectOrPackage = Pack repositoryPack ; PackageReferences = [ infrastructureInterfacesPack ; orderModelsPack ] |> Set.ofList }
+let repositoriesDeps = { ProjectOrPackage = Pack repositoriesPack ; PackageReferences = [ infrastructureInterfacesPack ; orderModelsPack ] |> Set.ofList }
 
 let toolsDeps = { ProjectOrPackage = Proj toolsProj ; PackageReferences = [ orderModelsPack ; commonExtensionsPack ] |> Set.ofList }
 
@@ -71,7 +72,7 @@ let projectsDependencies= [
     productInterfacesDeps ; productModelsDeps
     orderInterfacesDeps ; orderModelsDeps
     infrastructureInterfacesDeps
-    repositoryDeps
+    repositoriesDeps
     toolsDeps ]
 
 // #endregion

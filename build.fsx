@@ -88,6 +88,7 @@ Target.create "publish-gh-pages" (fun _ ->
     let tempGhPagesDir = __SOURCE_DIRECTORY__ </> "temp-gh-pages"
     Shell.cleanDir tempGhPagesDir
     Repository.cloneSingleBranch "" "https://github.com/aornota/duh.git" "gh-pages" tempGhPagesDir
+    Shell.cleanDir tempGhPagesDir
     Shell.copyRecursive uiPublishDir tempGhPagesDir true |> Trace.logfn "%A"
     Staging.stageAll tempGhPagesDir
     Commit.exec tempGhPagesDir (sprintf "Publish gh-pages (%s)" (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")))

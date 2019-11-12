@@ -34,6 +34,8 @@ let private mainAsync argv = async {
     write "..." ConsoleColor.Green
     // #endregion
 
+    let mutable retval = 0
+
     try
         // #region Logging examples
         (* TEMP-NMB... *)
@@ -46,13 +48,16 @@ let private mainAsync argv = async {
         // #endregion
 
         // TODO-NMB...
-    with | exn -> sourcedLogger.Error("Unexpected error: {errorMessage}\n{stackTrace}", exn.Message, exn.StackTrace)
+
+    with | exn ->
+        sourcedLogger.Error("Unexpected error: {errorMessage}\n{stackTrace}", exn.Message, exn.StackTrace)
+        retval <- 1
 
     // #region "Press any key to exit..."
     writeNewLine "Press any key to exit..." ConsoleColor.Green
     Console.ReadKey() |> ignore
     writeBlankLine()
-    return 0
+    return retval
     // #endregion
 }
 

@@ -35,13 +35,17 @@ let private mainAsync argv = async {
     write "..." ConsoleColor.Green
     // #endregion
 
+    let mutable retval = 0
+
     try
         writeNewLine "\nvisualize:\n" ConsoleColor.Magenta
         visualize logger
-    with | exn -> sourcedLogger.Error("Unexpected error -> {errorMessage}\n{stackTrace}", exn.Message, exn.StackTrace)
+    with | exn ->
+        sourcedLogger.Error("Unexpected error -> {errorMessage}\n{stackTrace}", exn.Message, exn.StackTrace)
+        retval <- 1
 
     writeBlankLine()
-    return 0
+    return retval
 }
 
 [<EntryPoint>]

@@ -13,66 +13,46 @@ let sharedSln = { Name = "Shared" ; Repo = Subversion ; RootPath = "Shared" ; Co
 
 // #region Projects:
 
-let commonInterfacesProj = { Name = "Common.Interfaces" ; Solution = domainSln ; ExtraPath = None }
-let commonModelsProj = { Name = "Common.Models" ; Solution = domainSln ; ExtraPath = None }
-let commonExtensionsProj = { Name = "Common.Extensions" ; Solution = domainSln ; ExtraPath = None }
-let productInterfacesProj = { Name = "Product.Interfaces" ; Solution = domainSln ; ExtraPath = None }
-let productModelsProj = { Name = "Product.Models" ; Solution = domainSln ; ExtraPath = None }
-let orderInterfacesProj = { Name = "Order.Interfaces" ; Solution = domainSln ; ExtraPath = None }
-let orderModelsProj = { Name = "Order.Models" ; Solution = domainSln ; ExtraPath = None }
-let infrastructureInterfacesProj = { Name = "Infrastructure.Interfaces" ; Solution = domainSln ; ExtraPath = None }
+let commonInterfacesProj = { Name = "Common.Interfaces" ; Solution = domainSln ; ExtraPath = None ; Packaged = true }
+let commonModelsProj = { Name = "Common.Models" ; Solution = domainSln ; ExtraPath = None ; Packaged = true }
+let commonExtensionsProj = { Name = "Common.Extensions" ; Solution = domainSln ; ExtraPath = None ; Packaged = true }
+let productInterfacesProj = { Name = "Product.Interfaces" ; Solution = domainSln ; ExtraPath = None ; Packaged = true }
+let productModelsProj = { Name = "Product.Models" ; Solution = domainSln ; ExtraPath = None ; Packaged = true }
+let orderInterfacesProj = { Name = "Order.Interfaces" ; Solution = domainSln ; ExtraPath = None ; Packaged = true }
+let orderModelsProj = { Name = "Order.Models" ; Solution = domainSln ; ExtraPath = None ; Packaged = true }
+let infrastructureInterfacesProj = { Name = "Infrastructure.Interfaces" ; Solution = domainSln ; ExtraPath = None ; Packaged = true }
 
-let repositoriesProj = { Name = "Repositories" ; Solution = infrastructureSln ; ExtraPath = None }
+let repositoriesProj = { Name = "Repositories" ; Solution = infrastructureSln ; ExtraPath = None ; Packaged = true }
+let repositoriesTestsProj = { Name = "Repositories.Tests" ; Solution = infrastructureSln ; ExtraPath = None ; Packaged = false }
 
-let toolsProj = { Name = "Tools" ; Solution = sharedSln ; ExtraPath = Some "Non Production" }
-
-// #endregion
-
-// #region Packages:
-
-let commonInterfacesPack = Package commonInterfacesProj
-let commonModelsPack = Package commonModelsProj
-let commonExtensionsPack = Package commonExtensionsProj
-let productInterfacesPack = Package productInterfacesProj
-let productModelsPack = Package productModelsProj
-let orderInterfacesPack = Package orderInterfacesProj
-let orderModelsPack = Package orderModelsProj
-let infrastructureInterfacesPack = Package infrastructureInterfacesProj
-
-let repositoriesPack = Package repositoriesProj
-
-// toolsProj is not a Package
-
-let packages = [
-    commonInterfacesPack ; commonModelsPack ; commonExtensionsPack
-    productInterfacesPack ; productModelsPack
-    orderInterfacesPack ; orderModelsPack
-    infrastructureInterfacesPack
-    repositoriesPack ]
+let toolsProj = { Name = "Tools" ; Solution = sharedSln ; ExtraPath = Some "Non Production" ; Packaged = false }
 
 // #endregion
 
 // #region ProjectDependencies:
 
-let commonInterfacesDeps = { ProjectOrPackage = Pack commonInterfacesPack ; PackageReferences = [] |> Set.ofList }
-let commonModelsDeps = { ProjectOrPackage = Pack commonModelsPack ; PackageReferences = [ commonInterfacesPack ] |> Set.ofList }
-let commonExtensionsDeps = { ProjectOrPackage = Pack commonExtensionsPack ; PackageReferences = [ commonModelsPack ] |> Set.ofList }
-let productInterfacesDeps = { ProjectOrPackage = Pack productInterfacesPack ; PackageReferences = [ commonInterfacesPack ] |> Set.ofList }
-let productModelsDeps = { ProjectOrPackage = Pack productModelsPack ; PackageReferences = [ productInterfacesPack ; commonModelsPack ] |> Set.ofList }
-let orderInterfacesDeps = { ProjectOrPackage = Pack orderInterfacesPack ; PackageReferences = [ productInterfacesPack ] |> Set.ofList }
-let orderModelsDeps = { ProjectOrPackage = Pack orderModelsPack ; PackageReferences = [ orderInterfacesPack ; productModelsPack ] |> Set.ofList }
-let infrastructureInterfacesDeps = { ProjectOrPackage = Pack infrastructureInterfacesPack ; PackageReferences = [ orderInterfacesPack ] |> Set.ofList }
+let commonInterfacesDeps = { Project = commonInterfacesProj ; Dependencies = [] |> Set.ofList }
+let commonModelsDeps = { Project = commonModelsProj ; Dependencies = [ PackageReference commonInterfacesProj ] |> Set.ofList }
+let commonExtensionsDeps = { Project = commonExtensionsProj ; Dependencies = [ PackageReference commonModelsProj ] |> Set.ofList }
+let productInterfacesDeps = { Project = productInterfacesProj ; Dependencies = [ PackageReference commonInterfacesProj ] |> Set.ofList }
+let productModelsDeps = { Project = productModelsProj ; Dependencies = [ PackageReference productInterfacesProj ; PackageReference commonModelsProj ] |> Set.ofList }
+let orderInterfacesDeps = { Project = orderInterfacesProj ; Dependencies = [ PackageReference productInterfacesProj ] |> Set.ofList }
+let orderModelsDeps = { Project = orderModelsProj ; Dependencies = [ PackageReference orderInterfacesProj ; PackageReference productModelsProj ] |> Set.ofList }
+let infrastructureInterfacesDeps = { Project = infrastructureInterfacesProj ; Dependencies = [ PackageReference orderInterfacesProj ] |> Set.ofList }
 
-let repositoriesDeps = { ProjectOrPackage = Pack repositoriesPack ; PackageReferences = [ infrastructureInterfacesPack ; orderModelsPack ] |> Set.ofList }
+let repositoriesDeps = { Project = repositoriesProj ; Dependencies = [ PackageReference infrastructureInterfacesProj ; PackageReference orderModelsProj ] |> Set.ofList }
+let repositoriesTestsDeps = { Project = repositoriesTestsProj ; Dependencies = [ PackageReference commonExtensionsProj ; ProjectReference repositoriesProj ] |> Set.ofList }
 
-let toolsDeps = { ProjectOrPackage = Proj toolsProj ; PackageReferences = [ orderModelsPack ; commonExtensionsPack ] |> Set.ofList }
+let toolsDeps = { Project = toolsProj ; Dependencies = [ PackageReference orderModelsProj ; PackageReference commonExtensionsProj ] |> Set.ofList }
 
 let projectsDependencies= [
     commonInterfacesDeps ; commonModelsDeps ; commonExtensionsDeps
     productInterfacesDeps ; productModelsDeps
     orderInterfacesDeps ; orderModelsDeps
     infrastructureInterfacesDeps
-    repositoriesDeps
+    repositoriesDeps ; repositoriesTestsDeps
     toolsDeps ]
+
+let packages = projectsDependencies |> List.map (fun pd -> pd.Project ) |> List.filter (fun p -> p.Packaged )
 
 // #endregion

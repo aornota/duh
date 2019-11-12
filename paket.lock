@@ -1025,14 +1025,14 @@ NUGET
       Fable.Core (>= 3.0)
       FSharp.Core (>= 4.7)
     FSharp.Core (4.7)
-    FSharp.Data.Adaptive (0.0.5-prerelease09)
+    FSharp.Data.Adaptive (0.0.6)
       FSharp.Core (>= 4.6.2)
     Thoth.Json (3.4.1)
       Fable.Core (>= 3.0)
       FSharp.Core (>= 4.6.2)
 GITHUB
   remote: krauthaufen/Fable.Elmish.Adaptive
-    FULLPROJECT (04c13cc37c303d4127704b5be6936e64e3715bb8)
+    FULLPROJECT (ac5ce81bd4830090bef87422973bdefaa612e20c)
       Adaptify.MSBuild (>= 0.0.2 < 0.1)
       Elmish
       Fable.Browser.Dom (>= 1.1 < 1.2)
@@ -1040,5 +1040,5 @@ GITHUB
       Fable.Elmish.React (>= 3.0.1 < 3.1)
       Fable.Promise (>= 2.0 < 2.1)
       FSharp.Core (>= 4.7)
-      FSharp.Data.Adaptive (>= 0.0.5-prerelease08 < 0.1)
+      FSharp.Data.Adaptive (>= 0.0.6 < 0.1)
       Thoth.Json

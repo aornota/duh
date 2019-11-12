@@ -21,17 +21,19 @@ let [<Literal>] private SOURCE = "VisualizerConsole.Visualizer"
 
 let private quoteName n = sprintf "\"%s\"" n
 
-let private toCsv separator items = match items with | [] -> String.Empty | _ -> List.reduce (fun item1 item2 -> sprintf "%s%s%s" item1 separator item2) items
-
 let private writeProjectDependencies writer (projectDependencies:ProjectDependencies) =
-    let fromNode = quoteName (projectOrPackageName projectDependencies.ProjectOrPackage)
-    let toNodes =
-        projectDependencies.PackageReferences
-        |> Seq.map (fun (Package project) -> quoteName project.Name)
-        |> Seq.sort
-        |> Seq.toList
-        |> toCsv "; "
-    fprintfn writer "   %s -> { rank=none; %s }" fromNode toNodes
+    let toCsv separator items = match items with | [] -> String.Empty | _ -> List.reduce (fun item1 item2 -> sprintf "%s%s%s" item1 separator item2) items
+    let getNodes dependencies = dependencies |> List.map (dependencyName >> quoteName) |> List.sort |> toCsv ", "
+    let fromNode = quoteName projectDependencies.Project.Name
+    let packageReferences = projectDependencies.Dependencies |> Seq.filter isPackageReference |> List.ofSeq
+    if packageReferences.Length > 0 then
+        let notPackaged = packageReferences |> List.filter (dependencyIsPackaged >> not)
+        if notPackaged.Length > 0 then
+            let errant = notPackaged |> List.map dependencyName |> toCsv ", "
+            failwithf "The following project/s are listed as package references for %s but are not packaged: %s" projectDependencies.Project.Name errant
+        fprintfn writer "   %s -> { rank=none; %s }" fromNode (getNodes packageReferences)
+    let projectReferences = projectDependencies.Dependencies |> Seq.filter (isPackageReference >> not) |> List.ofSeq
+    if projectReferences.Length > 0 then fprintfn writer "   %s -> { rank=none; %s } [style=dashed]" fromNode (getNodes projectReferences)
 
 let private createGraphvizInputFile (logger:ILogger) (inputFile:string) projectsDependencies =
     logger.Information("Creating Graphviz input file {inputFile} from dependencies", inputFile)
@@ -42,12 +44,12 @@ let private createGraphvizInputFile (logger:ILogger) (inputFile:string) projects
     fprintfn writer "    rankdir=LR;"
     fprintfn writer "    fontsize=10;"
     projectsDependencies
-    |> Seq.sortBy (fun projectDependencies -> projectOrPackageName projectDependencies.ProjectOrPackage)
+    |> Seq.sortBy (fun pd -> pd.Project.Name)
     |> Seq.iter (writeProjectDependencies writer)
     projectsDependencies
-    |> Seq.iter (fun projectDependencies->
-        let fromNode = quoteName (projectOrPackageName projectDependencies.ProjectOrPackage)
-        let colour = quoteName (projectOrPackageColour projectDependencies.ProjectOrPackage)
+    |> Seq.iter (fun pd->
+        let fromNode = quoteName pd.Project.Name
+        let colour = quoteName (projectColour pd.Project)
         fprintfn writer "   %s [color=%s,style=filled];" fromNode colour)
     fprintfn writer "   }"
 

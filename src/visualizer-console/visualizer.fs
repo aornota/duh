@@ -15,7 +15,7 @@ open Serilog
 let [<Literal>] private GRAPH_VIZ__DOT_EXE = @"C:\Program Files (x86)\Graphviz2.38\bin\dot.exe"
 let [<Literal>] private GRAPH_VIZ__INPUT_FILENAME = "visualization.dot.graphviz"
 
-let [<Literal>] private VISUALIZATION_FILENAME = "visualization.png" // note: keep synchronized with ../../build.fsx
+let [<Literal>] private VISUALIZATION_FILENAME = "visualization.png" // note: keep synchronized with ../ui/app.fs and ../../build.fsx
 
 let [<Literal>] private SOURCE = "VisualizerConsole.Visualizer"
 

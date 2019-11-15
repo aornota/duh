@@ -19,7 +19,7 @@ open Fake.IO.FileSystemOperators
 open Fake.IO.Globbing.Operators
 open Fake.Tools.Git
 
-let [<Literal>] private VISUALIZATION_FILENAME = "visualization.png" // keep synchronized with ./src/visualizer-console/visualizer.fs
+let [<Literal>] private VISUALIZATION_FILENAME = "visualization.png" // keep synchronized with ./src/ui/app.fs and ./src/visualizer-console/visualizer.fs
 
 let private uiDir = Path.getFullName "./src/ui"
 let private uiPublicDir = uiDir </> "public"

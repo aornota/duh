@@ -6,6 +6,8 @@
     "author": "dj narration",
     "license": "Unlicense",
     "dependencies": {
+        "@material-ui/core": "^4.6.1",
+        "@material-ui/lab": "^4.0.0-alpha.31",
         "react": "^16.12.0",
         "react-dom": "^16.12.0"
     },

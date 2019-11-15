@@ -1,4 +1,4 @@
-group console
+group visualizer-console
 
 	FSharp.Core
     Giraffe.SerilogExtensions

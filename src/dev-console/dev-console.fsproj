@@ -9,6 +9,8 @@
     <ItemGroup> <!-- Compile -->
         <Compile Include="..\common\console.fs" />
         <Compile Include="..\common\sourced-logger.fs" />
+        <Compile Include="..\common\domain.fs" />
+        <Compile Include="..\common\project-dependency-data.fs" />
         <Compile Include="program.fs" />
     </ItemGroup>
     <ItemGroup> <!-- appsettings.json -->

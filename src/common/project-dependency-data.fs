@@ -4,10 +4,10 @@ open Aornota.Duh.Common.Domain
 
 // #region Solutions:
 
-let domainSln = { Name = "Domain" ; Repo = AzureDevOps ; RootPath = "source" ; Colour = Grey }
-let infrastructureSln = { Name = "Infrastructure" ; Repo = AzureDevOps ; RootPath = "source" ; Colour = Cyan }
+let domainSln = { Name = "Domain" ; Repo = AzureDevOps ; RootPath = "source" ; Colour = Grey ; SortOrder = Some 1 }
+let infrastructureSln = { Name = "Infrastructure" ; Repo = AzureDevOps ; RootPath = "source" ; Colour = Cyan ; SortOrder = Some 2 }
 
-let sharedSln = { Name = "Shared" ; Repo = Subversion ; RootPath = "Shared" ; Colour = SlateBlue }
+let sharedSln = { Name = "Shared" ; Repo = Subversion ; RootPath = "Shared" ; Colour = Salmon ; SortOrder = None }
 
 // #endregion
 
@@ -99,7 +99,5 @@ let projectsDependencies= [
     infrastructureInterfacesDeps
     repositoriesDeps ; repositoriesTestsDeps
     toolsDeps ]
-
-let packages = projectsDependencies |> List.map (fun pd -> pd.Project ) |> List.filter (fun p -> p.Packaged )
 
 // #endregion

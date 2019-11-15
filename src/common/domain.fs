@@ -1,10 +1,12 @@
 module Aornota.Duh.Common.Domain
 
-type Colour = | Blue | Coral | Cyan | Goldenrod | GoldenrodYellow | Grey | Pink | Salmon | SeaGreen | SkyBlue | SlateBlue | SlateGrey | SteelBlue | Yellow
+open System
+
+type Colour = | Blue | Coral | Cyan | Goldenrod | Grey | Pink | Salmon | SeaGreen | SkyBlue | SlateBlue | SlateGrey | SteelBlue | Yellow
 
 type Repo = | AzureDevOps | Subversion
 
-type Solution = { Name : string ; Repo : Repo ; RootPath : string ; Colour : Colour }
+type Solution = { Name : string ; Repo : Repo ; RootPath : string ; Colour : Colour ; SortOrder : int option }
 
 type Project = { Name : string ; Solution : Solution ; ExtraPath : string option ; Packaged : bool }
 
@@ -18,10 +20,12 @@ let colourLightText colour = sprintf "light%s" (colourText colour)
 let repoText = function | AzureDevOps -> "Azure DevOps" | Subversion -> "Subversion"
 
 let solutionFileText (solution:Solution) = sprintf "%s.sln" solution.Name
+let solutionAndRepoText (solution:Solution) = sprintf "%s (%s)" (solution.Name) (repoText solution.Repo)
 let solutionFolderText solution = sprintf "/%s/%s" solution.RootPath solution.Name
 let solutionPathText solution = sprintf "%s/%s" (solutionFolderText solution) (solutionFileText solution)
 let solutionFileAndRepoText solution = sprintf "%s (%s)" (solutionFileText solution) (repoText solution.Repo)
 let solutionPathAndRepoText solution = sprintf "%s (%s)" (solutionPathText solution) (repoText solution.Repo)
+let solutionSortOrder solution = match solution.SortOrder with | Some ordinal -> ordinal | None -> Int32.MaxValue
 
 let projectFileText (project:Project) = sprintf "%s.csproj" project.Name
 let projectAndSolutionFileText project = sprintf "%s (%s)" (projectFileText project) (solutionFileText project.Solution)

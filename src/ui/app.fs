@@ -14,7 +14,7 @@ let [<Literal>] private DUH = "duh (β)" // note: also update ./index.html | ../
 
 let [<Literal>] private VISUALIZATION_FILENAME = "visualization.png" // note: keep synchronized with ../visualizer-console/visualizer.fs and ../../build.fsx
 
-(*
+(* TODO-NMB: Remove this...
 let rec nextPrime x =
     let isPrime = function
         | x when x <= 1 -> false
@@ -73,13 +73,11 @@ let private preamble =
                     prop.src "duh-24x24.png"
                     prop.alt "duh" ]
                 Html.text (sprintf " | %s" DUH) ] ]
-        // TODO-NMB: More...
         Mui.typography [
             typography.paragraph true
-            prop.children [
+            typography.children [
                 Html.strong "duh"
-                Html.text " (dependency update helper) is a tool to help with "
-                Html.strong [Html.em "blah blah blah..." ] ] ]
+                Html.text " (dependency upgrade helper) is a tool to work out the optimal order of package reference upgrades - both during development and when committing/pushing changes." ] ]
     ]
 
 let private visualization (showingVisualization:IStateHook<bool>) =
@@ -91,6 +89,7 @@ let private visualization (showingVisualization:IStateHook<bool>) =
             button.variant.outlined
             prop.onClick (fun _ -> showingVisualization.update not)
             button.children [ Html.text (sprintf "%s visualization of project/package dependencies" (if showingVisualization.current then "Hide" else "Display")) ] ] *)
+        Mui.divider []
         Mui.formGroup [
             // TODO-NMB: Remove this....formGroup.row false
             formGroup.children [
@@ -103,11 +102,31 @@ let private visualization (showingVisualization:IStateHook<bool>) =
                             prop.onClick (fun _ -> showingVisualization.update not) ] ) ] ] ]
         if showingVisualization.current then
             Html.div [
-                prop.style [ style.paddingTop 20 ]
+                prop.style [ style.paddingLeft 20 ]
                 prop.children [
                     Html.img [
+                        prop.style [
+                            style.paddingTop 20
+                            style.paddingBottom 20 ]
                         prop.src VISUALIZATION_FILENAME
-                        prop.alt "Visualization of project/package dependencies" ] ] ] ]
+                        prop.alt "Visualization of project/package dependencies" ]
+                    Mui.typography [
+                        typography.children [
+                            Html.text "● projects within the same solution share the same colour (with a darker shade used for "
+                            Html.em [ Html.strong "packaged" ]
+                            Html.text " projects)" ] ]
+                    Mui.typography [
+                        typography.children [
+                            Html.text "● solid lines indicate "
+                            Html.em [
+                                Html.text "project-to-"
+                                Html.strong "package" ]
+                            Html.text " references" ] ]
+                    Mui.typography [
+                        typography.children [
+                            Html.text "● dotted lines indicate "
+                            Html.em "project-to-project"
+                            Html.text " references" ] ] ] ] ]
 
 let app =
     FunctionComponent.Of(fun () ->

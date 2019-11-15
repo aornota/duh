@@ -5,9 +5,9 @@ open Aornota.Duh.Common.Domain
 // #region Solutions:
 
 let domainSln = { Name = "Domain" ; Repo = AzureDevOps ; RootPath = "source" ; Colour = Grey }
-let infrastructureSln = { Name = "Infrastructure" ; Repo = AzureDevOps ; RootPath = "source" ; Colour = SlateGrey }
+let infrastructureSln = { Name = "Infrastructure" ; Repo = AzureDevOps ; RootPath = "source" ; Colour = Cyan }
 
-let sharedSln = { Name = "Shared" ; Repo = Subversion ; RootPath = "Shared" ; Colour = SeaGreen }
+let sharedSln = { Name = "Shared" ; Repo = Subversion ; RootPath = "Shared" ; Colour = SlateBlue }
 
 // #endregion
 
@@ -88,7 +88,7 @@ let repositoriesTestsDeps = {
 let toolsDeps = {
     Project = toolsProj
     Dependencies = [
-        PackageReference orderModelsProj
+        PackageReference repositoriesProj
         PackageReference commonExtensionsProj
     ] |> Set.ofList }
 

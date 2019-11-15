@@ -1,4 +1,4 @@
-# ![duh](https://raw.githubusercontent.com/aornota/duh/master/src/ui/public/duh-24x24.png) | duh (α)
+# ![duh](https://raw.githubusercontent.com/aornota/duh/master/src/ui/public/duh-24x24.png) | duh (β)
 
 Work-in-progress experiments with FSharp.Data.Adaptive &c. (based on [Peter Keše's example](https://github.com/pkese/Fable.React.Adaptive.Counter)).
 

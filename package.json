@@ -1,6 +1,6 @@
 {
     "name": "duh",
-    "version": "α",
+    "version": "β",
     "description": "Work-in-progress experiments with FSharp.Data.Adaptive &c.",
     "repository": "git@github.com:aornota/duh.git",
     "author": "dj narration",

@@ -7,8 +7,11 @@ open FSharp.Data.Adaptive
 
 type PackagedProjectStatus = { Project : Project ; HasCodeChanges : bool }
 
-let cPackagedProjectStatuses =
+type DependencyUpdated = | Self of Project | Project of Project * depth : int
+
+let packagedProjectStatuses =
     projectsDependencies
     |> List.filter (fun pd -> pd.Project.Packaged )
     |> List.map (fun pd -> pd.Project.Name, { Project = pd.Project ; HasCodeChanges = false } )
-    |> cmap
+
+let cPackagedProjectStatuses = packagedProjectStatuses |> cmap

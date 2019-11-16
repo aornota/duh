@@ -30,8 +30,14 @@ let private projectColour = function
     | SeaGreen -> color.seaGreen | SkyBlue -> color.skyBlue | SlateBlue -> color.slateBlue | SlateGrey -> color.slateGray | SteelBlue -> color.steelBlue | Yellow -> color.yellow
 
 let private cCurrentTab = cval Development
-
 let private cShowingVisualization = cval false // remember to reset to false before committing
+
+let private aAnalysis = adaptive { // TODO-NMB...
+    let! packagedProjectStatuses = cPackagedProjectStatuses |> AMap.toAVal // TODO-NMB: Base on other avals instead?...
+    if packagedProjectStatuses |> List.ofSeq |> List.map snd |> List.exists (fun pps -> pps.HasCodeChanges) then
+        return! cCurrentTab |> AVal.map Some
+    else
+        return! None |> AVal.constant }
 
 let private preamble =
     Html.div [
@@ -96,7 +102,7 @@ let private codeChanges packagedProjectStatuses =
             grid.children [
                 yield! groupedAndSorted |> List.map solutionCodeChanges ] ] ]
 
-let private analysis (currentTab:Tab) = // TODO-NMB...
+let private analysisTabs (currentTab:Tab) = // TODO-NMB...
     let tabValue = function | Development -> 0 | CommittingPushing -> 1 // seemingly needs to be zero-based
     let onClick tab = (fun _ -> transact (fun () -> cCurrentTab.Value <- tab ))
     let muiTab tab' =
@@ -182,13 +188,15 @@ let private visualization showingVisualization =
 let private app =
     React.functionComponent (fun () ->
         let packagedProjectStatuses = ReactHB.Hooks.useAdaptive cPackagedProjectStatuses
-        let currentTab = ReactHB.Hooks.useAdaptive cCurrentTab
+        let analysis = ReactHB.Hooks.useAdaptive aAnalysis
         let showingVisualization = ReactHB.Hooks.useAdaptive cShowingVisualization
         Html.div [
             preamble
             codeChanges packagedProjectStatuses
-            if packagedProjectStatuses |> List.ofSeq |> List.map snd |> List.exists (fun pps -> pps.HasCodeChanges) then
-                analysis currentTab
+            match analysis with
+            | Some currentTab ->
+                analysisTabs currentTab
+            | None -> ()
             Mui.divider []
             visualization showingVisualization ] )
 

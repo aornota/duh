@@ -2,11 +2,5 @@ group ui
 
     FSharp.Data.Adaptive
     Fable.Core
-    Fable.Browser.Dom
-    Fable.Browser.Event
-    Fable.Elmish
-    Fable.Elmish.HMR
-    Fable.Elmish.React
-    Fable.React
     Feliz
     Feliz.MaterialUI

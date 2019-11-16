@@ -20,15 +20,9 @@ group ui
     framework: netstandard2.0
     storage: none
 
-    nuget FSharp.Data.Adaptive ~> 0.0.5-prerelease06
-    nuget Adaptify.MSBuild ~> 0.0.2
+    nuget FSharp.Data.Adaptive ~> 0.0.7
+    nuget Adaptify.MSBuild ~> 0.0.3
     nuget Fable.Core
-    nuget Fable.Browser.Dom
-    nuget Fable.Browser.Event
-    nuget Fable.Elmish
-    nuget Fable.Elmish.HMR
-    nuget Fable.Elmish.React
-    nuget Fable.React
     nuget Feliz
     nuget Feliz.MaterialUI
     github krauthaufen/Fable.Elmish.Adaptive
@@ -40,6 +34,8 @@ group dev-console
     storage: none
 
 	nuget FSharp.Core
+    nuget FSharp.Data.Adaptive ~> 0.0.7
+    nuget Adaptify.MSBuild ~> 0.0.3
     nuget Giraffe.SerilogExtensions
 	nuget Serilog
 	nuget Serilog.Settings.Configuration

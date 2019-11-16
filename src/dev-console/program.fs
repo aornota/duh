@@ -29,9 +29,9 @@ let private sourcedLogger = logger |> sourcedLogger SOURCE
 
 let private mainAsync argv = async {
     // #region "Running SOURCE.mainAsync..."
-    writeNewLine (sprintf "Running %s.mainAsync" SOURCE) ConsoleColor.Green
-    write (sprintf " %A" argv) ConsoleColor.DarkGreen
-    write "..." ConsoleColor.Green
+    writeNewLine (sprintf "Running %s.mainAsync" SOURCE) ConsoleColor.Magenta
+    write (sprintf " %A" argv) ConsoleColor.DarkMagenta
+    write "..." ConsoleColor.Magenta
     // #endregion
 
     let mutable retval = 0
@@ -39,7 +39,7 @@ let private mainAsync argv = async {
     try
         // #region Logging examples
         (* TEMP-NMB... *)
-        writeNewLine "\nLogging examples:\n" ConsoleColor.Magenta
+        writeNewLine "\nLogging examples:\n" ConsoleColor.DarkYellow
         let test = Some 3.14
         sourcedLogger.Debug("This is a debug message")
         sourcedLogger.Information("This is an information message: {test}", test)
@@ -54,7 +54,7 @@ let private mainAsync argv = async {
         retval <- 1
 
     // #region "Press any key to exit..."
-    writeNewLine "Press any key to exit..." ConsoleColor.Green
+    writeNewLine "Press any key to exit..." ConsoleColor.Magenta
     Console.ReadKey() |> ignore
     writeBlankLine()
     return retval

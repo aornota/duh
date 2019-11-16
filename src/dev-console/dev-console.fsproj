@@ -11,6 +11,7 @@
         <Compile Include="..\common\sourced-logger.fs" />
         <Compile Include="..\common\domain.fs" />
         <Compile Include="..\common\project-dependency-data.fs" />
+        <Compile Include="..\common\adaptive.fs" />
         <Compile Include="program.fs" />
     </ItemGroup>
     <ItemGroup> <!-- appsettings.json -->

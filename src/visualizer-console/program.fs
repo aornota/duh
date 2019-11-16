@@ -30,15 +30,15 @@ let private sourcedLogger = logger |> sourcedLogger SOURCE
 
 let private mainAsync argv = async {
     // #region "Running SOURCE.mainAsync..."
-    writeNewLine (sprintf "Running %s.mainAsync" SOURCE) ConsoleColor.Green
-    write (sprintf " %A" argv) ConsoleColor.DarkGreen
-    write "..." ConsoleColor.Green
+    writeNewLine (sprintf "Running %s.mainAsync" SOURCE) ConsoleColor.Magenta
+    write (sprintf " %A" argv) ConsoleColor.DarkMagenta
+    write "..." ConsoleColor.Magenta
     // #endregion
 
     let mutable retval = 0
 
     try
-        writeNewLine "\nvisualize:\n" ConsoleColor.Magenta
+        writeNewLine "\nvisualize:\n" ConsoleColor.DarkYellow
         visualize logger
     with | exn ->
         sourcedLogger.Error("Unexpected error -> {errorMessage}\n{stackTrace}", exn.Message, exn.StackTrace)

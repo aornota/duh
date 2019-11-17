@@ -9,7 +9,7 @@ type PackagedProjectStatus = { Project : Project ; HasCodeChanges : bool }
 
 type AnalysisTab = | Development | CommittingPushing
 
-let [<Literal>] private SHOW_VISUALIZATION__DEFAULT = true
+let [<Literal>] private SHOW_VISUALIZATION__DEFAULT = false
 
 let key (project:Project) = project.Name
 

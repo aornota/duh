@@ -1,6 +1,7 @@
 module Aornota.Duh.Ui.App
 
-open Aornota.Duh.Common.Adaptive
+open Aornota.Duh.Common.AdaptiveValues
+open Aornota.Duh.Common.ChangeableValues
 open Aornota.Duh.Common.Domain
 
 open Browser.Dom
@@ -12,8 +13,6 @@ open Feliz
 open Feliz.MaterialUI
 
 open FSharp.Data.Adaptive
-
-type private Tab = | Development | CommittingPushing
 
 let [<Literal>] private DUH = "duh"
 
@@ -28,16 +27,6 @@ let [<Literal>] private BULLET = "●"
 let private projectColour = function
     | Blue -> color.blue | Coral -> color.coral | Cyan -> color.cyan | Goldenrod -> color.goldenRod | Grey -> color.gray | Pink -> color.pink | Salmon -> color.salmon
     | SeaGreen -> color.seaGreen | SkyBlue -> color.skyBlue | SlateBlue -> color.slateBlue | SlateGrey -> color.slateGray | SteelBlue -> color.steelBlue | Yellow -> color.yellow
-
-let private cCurrentTab = cval Development
-let private cShowingVisualization = cval false // remember to reset to false before committing
-
-let private aAnalysis = adaptive { // TODO-NMB...
-    let! packagedProjectStatuses = cPackagedProjectStatuses |> AMap.toAVal // TODO-NMB: Base on other avals instead?...
-    if packagedProjectStatuses |> List.ofSeq |> List.map snd |> List.exists (fun pps -> pps.HasCodeChanges) then
-        return! cCurrentTab |> AVal.map Some
-    else
-        return! None |> AVal.constant }
 
 let private preamble =
     Html.div [
@@ -61,7 +50,7 @@ let private preamble =
 
 let private packageCheckbox (key, packagedProjectStatus:PackagedProjectStatus) =
     let project = packagedProjectStatus.Project
-    let onClick = (fun _ -> transact (fun () -> cPackagedProjectStatuses.[key] <- { packagedProjectStatus with HasCodeChanges = not packagedProjectStatus.HasCodeChanges } ))
+    let onClick = (fun _ -> transact (fun () -> cPackagedProjectStatusMap.[key] <- { packagedProjectStatus with HasCodeChanges = not packagedProjectStatus.HasCodeChanges } ))
     Mui.formControlLabel [
         formControlLabel.label project.Name
         formControlLabel.control (
@@ -71,7 +60,10 @@ let private packageCheckbox (key, packagedProjectStatus:PackagedProjectStatus) =
                 prop.onClick onClick ] ) ]
 
 let private solutionCodeChanges (solution:Solution, packagedProjectStatuses:seq<string * PackagedProjectStatus>) =
-    let sorted = packagedProjectStatuses |> List.ofSeq |> List.sortBy (fun (_, pps) -> pps.Project.Name)
+    let sorted =
+        packagedProjectStatuses
+        |> List.ofSeq
+        |> List.sortBy (fun (_, pps) -> pps.Project.Name)
     Mui.grid [
         grid.item true
         grid.children [
@@ -85,9 +77,13 @@ let private solutionCodeChanges (solution:Solution, packagedProjectStatuses:seq<
                 formGroup.children [
                     yield! sorted |> List.map packageCheckbox ] ] ] ]
 
-let private codeChanges packagedProjectStatuses =
+let private codeChanges packagedProjectStatusMap =
     let solution (packagedProjectStatus:PackagedProjectStatus) = packagedProjectStatus.Project.Solution
-    let groupedAndSorted = packagedProjectStatuses |> List.ofSeq |> List.groupBy (snd >> solution) |> List.sortBy (fun (solution, _) -> solutionSortOrder solution, solution.Name)
+    let groupedAndSorted =
+        packagedProjectStatusMap
+        |> List.ofSeq
+        |> List.groupBy (snd >> solution)
+        |> List.sortBy (fun (solution, _) -> solutionSortOrder solution, solution.Name)
     Html.div [
         Mui.typography [
             typography.color.secondary
@@ -102,26 +98,67 @@ let private codeChanges packagedProjectStatuses =
             grid.children [
                 yield! groupedAndSorted |> List.map solutionCodeChanges ] ] ]
 
-let private analysisTabs (currentTab:Tab) = // TODO-NMB...
+let private analysis (affected:(ProjectDependencyPaths * int) list) currentTab latestDone =
+    (* TODO-NMB:
+        -- Tab-specific notes?...
+        -- Various UI improvements, e.g.:
+            - better formatting...
+            - use textSecondary for "done" steps (i.e. ordinal <= latestDone-or-0)...
+            - button for first "undone" step to mark as "done" (i.e. by "transact (fun () -> cTabLatestDoneMap.[currentTab] <- Some ordinal)")... *)
+    let latestDone = latestDone |> Option.defaultValue 0
+    let stepProject (projectDependencyPaths:ProjectDependencyPaths) =
+        let project = projectDependencyPaths.Project
+        Mui.typography [
+            typography.paragraph false
+            typography.children [
+                Html.text (sprintf "%s (%s)" project.Name project.Solution.Name) ] ]
+    let step (ordinal, projectsDependencyPaths:ProjectDependencyPaths list) = [
+        Mui.typography [
+            typography.variant.h6
+            typography.paragraph true
+            typography.children [
+                Html.strong (sprintf "Step %i" ordinal) ] ]
+        yield! projectsDependencyPaths |> List.map stepProject ]
+    let groupedAndSorted =
+        affected
+        |> List.groupBy snd
+        |> List.sortBy fst
+        |> List.map (fun (maxDepth, paths) ->
+            let sorted =
+                paths
+                |> List.map fst
+                |> List.sortBy (fun pdp -> solutionSortOrder pdp.Project.Solution, pdp.Project.Name)
+            maxDepth + 1, sorted)
+    let current = match currentTab with | Development -> "development" | CommittingPushing -> "committing / pushing"
+    Html.div [
+        prop.style [ style.paddingLeft 20 ; style.paddingBottom 20 ]
+        prop.children [
+            Mui.typography [
+                typography.paragraph true
+                typography.children [
+                    Html.strong "TODO-NMB: "
+                    Html.text (sprintf "Specific notes about these %s instructions - plus various UI improvements..." current) ] ]
+            yield! groupedAndSorted |> List.map step |> List.collect id ] ]
+
+let private analysisTabs affected currentTab latestDone =
     let tabValue = function | Development -> 0 | CommittingPushing -> 1 // seemingly needs to be zero-based
-    let onClick tab = (fun _ -> transact (fun () -> cCurrentTab.Value <- tab ))
-    let muiTab tab' =
-        let label = match tab' with | Development -> "Development" | CommittingPushing -> "Committing / pushing"
-        let iconClassName = match tab' with | Development -> "far fa-file-code" | CommittingPushing -> "fas fa-code-branch"
+    let onClick analysisTab = (fun _ -> transact (fun () -> cCurrentTab.Value <- analysisTab))
+    let muiTab analysisTab =
+        let label = match analysisTab with | Development -> "Development" | CommittingPushing -> "Committing / pushing"
+        let iconClassName = match analysisTab with | Development -> "far fa-file-code" | CommittingPushing -> "fas fa-code-branch"
         Mui.tab [
             tab.label label
             tab.icon (
                 Mui.icon [
                     icon.classes [ classes.icon.root iconClassName ]
-                    if tab' = currentTab then icon.color.primary ] )
-            tab.value (tabValue tab')
-            prop.onClick (onClick tab') ]
+                    if analysisTab = currentTab then icon.color.primary ] )
+            tab.value (tabValue analysisTab)
+            prop.onClick (onClick analysisTab) ]
     Html.div [
         Mui.typography [
             typography.color.secondary
             typography.paragraph true
             typography.children [
-                Html.strong "TODO-NMB..."
                 Html.text "Optimal order of package reference updates:" ] ]
         Mui.tabs [
             prop.style [ style.paddingLeft 20 ; style.paddingBottom 20 ]
@@ -130,25 +167,7 @@ let private analysisTabs (currentTab:Tab) = // TODO-NMB...
             tabs.children [
                 muiTab Development
                 muiTab CommittingPushing ] ]
-        match currentTab with
-        | Development ->
-            Html.div [
-                prop.style [ style.paddingLeft 20 ; style.paddingBottom 20 ]
-                prop.children [
-                    Mui.typography [
-                        typography.paragraph true
-                        typography.children [
-                            Html.strong "TODO-NMB..."
-                            Html.text "Development instructions" ] ] ] ]
-        | CommittingPushing ->
-            Html.div [
-                prop.style [ style.paddingLeft 20 ; style.paddingBottom 20 ]
-                prop.children [
-                    Mui.typography [
-                        typography.paragraph true
-                        typography.children [
-                            Html.strong "TODO-NMB..."
-                            Html.text "Committing / pushing instructions" ] ] ] ] ]
+        analysis affected currentTab latestDone ]
 
 let private visualization showingVisualization =
     Html.div [
@@ -185,17 +204,19 @@ let private visualization showingVisualization =
                         typography.children [
                             Html.text (sprintf "%s dotted lines indicate project-to-project references" BULLET) ] ] ] ] ]
 
+// TEMP-NMB...let private debug temp = Html.div [ Mui.typography [ typography.children [ Html.text (sprintf "%A" temp) ] ] ]
+
 let private app =
     React.functionComponent (fun () ->
-        let packagedProjectStatuses = ReactHB.Hooks.useAdaptive cPackagedProjectStatuses
+        let packagedProjectStatusMap = ReactHB.Hooks.useAdaptive cPackagedProjectStatusMap
         let analysis = ReactHB.Hooks.useAdaptive aAnalysis
         let showingVisualization = ReactHB.Hooks.useAdaptive cShowingVisualization
         Html.div [
             preamble
-            codeChanges packagedProjectStatuses
+            codeChanges packagedProjectStatusMap
             match analysis with
-            | Some currentTab ->
-                analysisTabs currentTab
+            | Some (affected, currentTab, tabLatestDoneMap) ->
+                analysisTabs affected currentTab tabLatestDoneMap.[currentTab]
             | None -> ()
             Mui.divider []
             visualization showingVisualization ] )

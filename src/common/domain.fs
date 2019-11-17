@@ -37,5 +37,6 @@ let projectAndSolutionPathText project = sprintf "%s/%s" (projectAndSolutionFold
 let projectColour project = if project.Packaged then colourText project.Solution.Colour else colourLightText project.Solution.Colour
 
 let isPackageReference = function | PackageReference _ -> true | ProjectReference _ -> false
+let dependencyProject = function | PackageReference project | ProjectReference project -> project
 let dependencyName = function | PackageReference project | ProjectReference project -> project.Name
 let dependencyIsPackaged = function | PackageReference project | ProjectReference project -> project.Packaged

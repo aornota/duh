@@ -21,4 +21,4 @@ let cPackagedProjectStatusMap = packagedProjectStatuses |> cmap
 let cCurrentTab = cval Development
 let cTabLatestDoneMap : ChangeableMap<AnalysisTab, int option> = [ (Development, None) ; (CommittingPushing, None) ] |> cmap
 
-let cShowingVisualization = cval true // remember to reset to false before committing
+let cShowingVisualization = cval true // remember to reset to true before committing (or false, if that's what you want!)

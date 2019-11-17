@@ -9,6 +9,8 @@ type PackagedProjectStatus = { Project : Project ; HasCodeChanges : bool }
 
 type AnalysisTab = | Development | CommittingPushing
 
+let [<Literal>] private SHOW_VISUALIZATION__DEFAULT = true
+
 let key (project:Project) = project.Name
 
 let private packagedProjectStatuses =
@@ -21,4 +23,4 @@ let cPackagedProjectStatusMap = packagedProjectStatuses |> cmap
 let cCurrentTab = cval Development
 let cTabLatestDoneMap : ChangeableMap<AnalysisTab, int option> = [ (Development, None) ; (CommittingPushing, None) ] |> cmap
 
-let cShowingVisualization = cval true // remember to reset to true before committing (or false, if that's what you want!)
+let cShowingVisualization = cval SHOW_VISUALIZATION__DEFAULT

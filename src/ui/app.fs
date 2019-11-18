@@ -99,26 +99,35 @@ let private codeChanges packagedProjectStatusMap =
                 yield! groupedAndSorted |> List.map solutionCodeChanges ] ] ]
 
 let private analysis (affected:(ProjectDependencyPaths * int) list) currentTab latestDone =
+    let latestDone = latestDone |> Option.defaultValue 0
     (* TODO-NMB:
         -- Tab-specific notes?...
         -- Various UI improvements, e.g.:
-            - better formatting...
-            - use textSecondary for "done" steps (i.e. ordinal <= latestDone-or-0)...
-            - button for first "undone" step to mark as "done" (i.e. by "transact (fun () -> cTabLatestDoneMap.[currentTab] <- Some ordinal)")... *)
-    let latestDone = latestDone |> Option.defaultValue 0
-    let stepProject (projectDependencyPaths:ProjectDependencyPaths) =
-        let project = projectDependencyPaths.Project
-        Mui.typography [
-            typography.paragraph false
-            typography.children [
-                Html.text (sprintf "%s (%s)" project.Name project.Solution.Name) ] ]
+            - better formatting... *)
     let step (ordinal, projectsDependencyPaths:ProjectDependencyPaths list) = [
+        let isDone = ordinal <= latestDone
+        let isNext = ordinal = latestDone + 1
+        let stepProject (projectDependencyPaths:ProjectDependencyPaths) =
+            let project = projectDependencyPaths.Project
+            Mui.typography [
+                typography.paragraph false
+                if isDone then typography.color.textSecondary
+                typography.children [
+                    Html.text (sprintf "%s (%s)" project.Name project.Solution.Name) ] ]
         Mui.typography [
             typography.variant.h6
-            typography.paragraph true
+            typography.paragraph false
+            if isDone then typography.color.textSecondary
+            else if isNext then typography.color.primary
             typography.children [
                 Html.strong (sprintf "Step %i" ordinal) ] ]
-        yield! projectsDependencyPaths |> List.map stepProject ]
+        yield! projectsDependencyPaths |> List.map stepProject
+        if isNext then
+            Mui.button [
+                button.variant.text
+                button.color.primary
+                prop.onClick (fun _ -> transact (fun () -> cTabLatestDoneMap.[currentTab] <- Some ordinal ))
+                button.children [ Html.text "Done" ] ] ]
     let groupedAndSorted =
         affected
         |> List.groupBy snd

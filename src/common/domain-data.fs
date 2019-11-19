@@ -26,6 +26,7 @@ let projectMap =
         { Name = "Repositories.Tests" ; SolutionName = "Infrastructure" ; ExtraPath = None ; Packaged = false }
 
         { Name = "Tools" ; SolutionName = "Shared" ; ExtraPath = Some "Non Production" ; Packaged = false }
+        { Name = "Tools.Tests" ; SolutionName = "Shared" ; ExtraPath = Some "Non Production" ; Packaged = false }
     ]
     |> List.map (fun proj -> proj.Name, proj) |> Map
 
@@ -100,6 +101,12 @@ let projectsDependencies =
             Dependencies = [
                 PackageReference "Repositories"
                 PackageReference "Common.Extensions"
+            ] |> Set.ofList
+        }
+        {
+            ProjectName = "Tools.Tests"
+            Dependencies = [
+                ProjectReference "Tools"
             ] |> Set.ofList
         }
     ]

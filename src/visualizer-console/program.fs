@@ -29,11 +29,9 @@ let private logger = Log.Logger
 let private sourcedLogger = logger |> sourcedLogger SOURCE
 
 let private mainAsync argv = async {
-    // #region "Running SOURCE.mainAsync..."
     writeNewLine (sprintf "Running %s.mainAsync" SOURCE) ConsoleColor.Magenta
     write (sprintf " %A" argv) ConsoleColor.DarkMagenta
     write "..." ConsoleColor.Magenta
-    // #endregion
 
     let mutable retval = 0
 
@@ -45,12 +43,11 @@ let private mainAsync argv = async {
         retval <- 1
 
     writeBlankLine()
-    return retval
-}
+    return retval }
 
 [<EntryPoint>]
 let main argv =
     async {
-        do! Async.SwitchToThreadPool()
+        do! Async.SwitchToThreadPool ()
         return! mainAsync argv
     } |> Async.RunSynchronously

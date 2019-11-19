@@ -7,12 +7,14 @@ type Colour = | Blue | Coral | Cyan | Goldenrod | Grey | Pink | Salmon | SeaGree
 type Repo = | AzureDevOps | Subversion
 
 type Solution = { Name : string ; Repo : Repo ; RootPath : string ; Colour : Colour ; SortOrder : int option }
+type SolutionMap = Map<string, Solution>
 
-type Project = { Name : string ; Solution : Solution ; ExtraPath : string option ; Packaged : bool }
+type Project = { Name : string ; SolutionName : string ; ExtraPath : string option ; Packaged : bool }
+type ProjectMap = Map<string, Project>
 
-type Dependency = | PackageReference of Project | ProjectReference of Project
+type Dependency = | PackageReference of projectName : string | ProjectReference of projectName : string
 
-type ProjectDependencies = { Project : Project ; Dependencies : Dependency Set }
+type ProjectDependencies = { ProjectName : string ; Dependencies : Dependency Set }
 
 let colourText (colour:Colour) = colour.ToString().ToLower()
 let colourLightText colour = sprintf "light%s" (colourText colour)
@@ -28,15 +30,16 @@ let solutionPathAndRepoText solution = sprintf "%s (%s)" (solutionPathText solut
 let solutionSortOrder solution = match solution.SortOrder with | Some ordinal -> ordinal | None -> Int32.MaxValue
 
 let projectFileText (project:Project) = sprintf "%s.csproj" project.Name
-let projectAndSolutionFileText project = sprintf "%s (%s)" (projectFileText project) (solutionFileText project.Solution)
-let projectAndSolutionFolderText project =
+let projectAndSolutionFileText (solutionMap:SolutionMap) project = sprintf "%s (%s)" (projectFileText project) (solutionFileText solutionMap.[project.SolutionName])
+let projectAndSolutionFolderText (solutionMap:SolutionMap) project =
     match project.ExtraPath with
-    | Some extraPath -> sprintf "%s/%s/%s" (solutionFolderText project.Solution) extraPath project.Name
-    | None -> sprintf "%s/%s" (solutionFolderText project.Solution) project.Name
-let projectAndSolutionPathText project = sprintf "%s/%s" (projectAndSolutionFolderText project) (projectFileText project)
-let projectColour project = if project.Packaged then colourText project.Solution.Colour else colourLightText project.Solution.Colour
+    | Some extraPath -> sprintf "%s/%s/%s" (solutionFolderText solutionMap.[project.SolutionName]) extraPath project.Name
+    | None -> sprintf "%s/%s" (solutionFolderText solutionMap.[project.SolutionName]) project.Name
+let projectAndSolutionPathText (solutionMap:SolutionMap) project = sprintf "%s/%s" (projectAndSolutionFolderText solutionMap project) (projectFileText project)
+let projectColour (solutionMap:SolutionMap) project =
+    if project.Packaged then colourText solutionMap.[project.SolutionName].Colour else colourLightText solutionMap.[project.SolutionName].Colour
 
 let isPackageReference = function | PackageReference _ -> true | ProjectReference _ -> false
-let dependencyProject = function | PackageReference project | ProjectReference project -> project
-let dependencyName = function | PackageReference project | ProjectReference project -> project.Name
-let dependencyIsPackaged = function | PackageReference project | ProjectReference project -> project.Packaged
+let dependencyProjectName = function | PackageReference projectName | ProjectReference projectName -> projectName
+let dependencyProject (projectMap:ProjectMap) dependency = projectMap.[dependencyProjectName dependency]
+let dependencyIsPackaged (projectMap:ProjectMap) dependency = (dependencyProject projectMap dependency).Packaged

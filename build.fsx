@@ -19,7 +19,7 @@ open Fake.IO.FileSystemOperators
 open Fake.IO.Globbing.Operators
 open Fake.Tools.Git
 
-let [<Literal>] private VISUALIZATION_FILENAME = "visualization.png" // keep synchronized with ./src/ui/app.fs and ./src/visualizer-console/visualizer.fs
+let [<Literal>] private VISUALIZATION_FILENAME = "visualization.svg" // keep synchronized with ./src/ui/app.fs and ./src/visualizer-console/visualizer.fs
 
 let private uiDir = Path.getFullName "./src/ui"
 let private uiPublicDir = uiDir </> "public"
@@ -88,7 +88,10 @@ Target.create "publish-gh-pages" (fun _ ->
     let tempGhPagesDir = __SOURCE_DIRECTORY__ </> "temp-gh-pages"
     Shell.cleanDir tempGhPagesDir
     Repository.cloneSingleBranch "" "https://github.com/aornota/duh.git" "gh-pages" tempGhPagesDir
-    // TODO-NMB: Ensure that no-longer-required files (e.g  "hashed" .js) get removed from repository - and that visualization.png changes are picked up...Shell.cleanDir tempGhPagesDir
+    // Note: Clean again (and stage) to ensure that no-longer-required files - e.g. previous [app|vendor].{hash}.js - get removed.
+    // TODO-NMB: Check that visualization.svg changes are still picked up...
+    Shell.cleanDir tempGhPagesDir
+    Staging.stageAll tempGhPagesDir
     Shell.copyRecursive uiPublishDir tempGhPagesDir true |> Trace.logfn "%A"
     Staging.stageAll tempGhPagesDir
     Commit.exec tempGhPagesDir (sprintf "Publish gh-pages (%s)" (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")))

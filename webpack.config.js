@@ -39,7 +39,7 @@ module.exports = {
         , filename: isProduction ? '[name].[hash].js' : '[name].js'
     }
     , mode: isProduction ? "production" : "development"
-    , devtool: isProduction ? "source-map" : "eval-source-map"
+    , devtool: isProduction ? "" : "eval-source-map"
     , optimization: {
         splitChunks: {
             cacheGroups: {

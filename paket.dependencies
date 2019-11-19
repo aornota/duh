@@ -14,19 +14,6 @@ group build
     nuget Fake.IO.FileSystem
     nuget Fake.Tools.Git
 
-group ui
-
-    source https://api.nuget.org/v3/index.json
-    framework: netstandard2.0
-    storage: none
-
-    nuget FSharp.Data.Adaptive ~> 0.0.8
-    nuget Adaptify.MSBuild ~> 0.0.3
-    nuget Fable.Core
-    nuget Feliz
-    nuget Feliz.MaterialUI
-    github krauthaufen/Fable.Elmish.Adaptive
-
 group dev-console
 
     source https://api.nuget.org/v3/index.json
@@ -40,7 +27,19 @@ group dev-console
 	nuget Serilog
 	nuget Serilog.Settings.Configuration
 	nuget Serilog.Sinks.Console
-    nuget Thoth.Json.Net
+
+group ui
+
+    source https://api.nuget.org/v3/index.json
+    framework: netstandard2.0
+    storage: none
+
+    nuget FSharp.Data.Adaptive ~> 0.0.8
+    nuget Adaptify.MSBuild ~> 0.0.3
+    nuget Fable.Core
+    nuget Feliz
+    nuget Feliz.MaterialUI
+    github krauthaufen/Fable.Elmish.Adaptive
 
 group visualizer-console
 

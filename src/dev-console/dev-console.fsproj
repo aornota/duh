@@ -4,14 +4,16 @@
         <OutputType>Exe</OutputType>
         <TargetFramework>netcoreapp3.0</TargetFramework>
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-        <!-- Note: No need for <EnableDefaultContentItems>false</EnableDefaultContentItems> (cf. server.fsproj) - perhaps because Microsoft.NET.Sdk rather than Microsoft.NET.Sdk.Web? -->
     </PropertyGroup>
     <ItemGroup> <!-- Compile -->
+        <Compile Include="..\common\utility.fs" />
         <Compile Include="..\common\console.fs" />
         <Compile Include="..\common\sourced-logger.fs" />
         <Compile Include="..\common\domain.fs" />
-        <Compile Include="..\common\project-dependency-data.fs" />
-        <Compile Include="..\common\adaptive.fs" />
+        <Compile Include="..\common\domain-data.fs" />
+        <Compile Include="..\common\dependency-paths.fs" />
+        <Compile Include="..\common\changeable-values.fs" />
+        <Compile Include="..\common\adpative-values.fs" />
         <Compile Include="program.fs" />
     </ItemGroup>
     <ItemGroup> <!-- appsettings.json -->

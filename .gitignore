@@ -4,8 +4,8 @@
 node_modules/
 paket-files/
 publish/
-src/visualizer-console/*.graphviz
-src/visualizer-console/*.png
+src/visualizer-console/visualization.graphviz
+src/visualizer-console/visualization.svg
 temp-gh-pages/
 bin/
 obj/

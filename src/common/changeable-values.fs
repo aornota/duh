@@ -1,22 +1,20 @@
 module Aornota.Duh.Common.ChangeableValues
 
 open Aornota.Duh.Common.Domain
-open Aornota.Duh.Common.ProjectDependencyData
+open Aornota.Duh.Common.DomainData
 
 open FSharp.Data.Adaptive
 
-type PackagedProjectStatus = { Project : Project ; HasCodeChanges : bool }
+type PackagedProjectStatus = { ProjectName : string ; HasCodeChanges : bool }
 
 type AnalysisTab = | Development | CommittingPushing
 
 let [<Literal>] private SHOW_VISUALIZATION__DEFAULT = false
 
-let key (project:Project) = project.Name
-
 let private packagedProjectStatuses =
     projectsDependencies
-    |> List.filter (fun pd -> pd.Project.Packaged)
-    |> List.map (fun pd -> key pd.Project, { Project = pd.Project ; HasCodeChanges = false })
+    |> List.filter (fun pd -> projectMap.[pd.ProjectName].Packaged)
+    |> List.map (fun pd -> pd.ProjectName, { ProjectName = pd.ProjectName ; HasCodeChanges = false })
 
 let cPackagedProjectStatusMap = packagedProjectStatuses |> cmap
 

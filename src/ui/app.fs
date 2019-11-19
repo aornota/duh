@@ -2,7 +2,9 @@ module Aornota.Duh.Ui.App
 
 open Aornota.Duh.Common.AdaptiveValues
 open Aornota.Duh.Common.ChangeableValues
+open Aornota.Duh.Common.DependencyPaths
 open Aornota.Duh.Common.Domain
+open Aornota.Duh.Common.DomainData
 
 open Browser.Dom
 
@@ -20,9 +22,11 @@ let [<Literal>] private DUH = "duh"
 let [<Literal>] private DUH_VERSION = "β" // note: keep synchronized with  ./index.html | ../../package.json | ../../README.md
 
 let [<Literal>] private DUH_LOGO = "duh-24x24.png"
-let [<Literal>] private VISUALIZATION_FILENAME = "visualization.png" // note: keep synchronized with ../visualizer-console/visualizer.fs and ../../build.fsx
+let [<Literal>] private VISUALIZATION_FILENAME = "visualization.svg" // note: keep synchronized with ../visualizer-console/visualizer.fs and ../../build.fsx
 
 let [<Literal>] private BULLET = "●"
+
+let private solution projectName = solutionMap.[projectMap.[projectName].SolutionName]
 
 let private projectColour = function
     | Blue -> color.blue | Coral -> color.coral | Cyan -> color.cyan | Goldenrod -> color.goldenRod | Grey -> color.gray | Pink -> color.pink | Salmon -> color.salmon
@@ -48,26 +52,28 @@ let private preamble =
                 Html.text " (dependency update helper) is a tool to work out the optimal order of package reference updates — "
                 Html.text "both during development and when committing / pushing changes." ] ] ]
 
-let private packageCheckbox (key, packagedProjectStatus:PackagedProjectStatus) =
-    let project = packagedProjectStatus.Project
-    let onClick = (fun _ -> transact (fun () -> cPackagedProjectStatusMap.[key] <- { packagedProjectStatus with HasCodeChanges = not packagedProjectStatus.HasCodeChanges } ))
+let private packageCheckbox (packagedProjectStatus:PackagedProjectStatus) =
+    let projectName = packagedProjectStatus.ProjectName
+    let onClick = (fun _ -> transact (fun () -> cPackagedProjectStatusMap.[projectName] <- { packagedProjectStatus with HasCodeChanges = not packagedProjectStatus.HasCodeChanges }))
     Mui.formControlLabel [
-        formControlLabel.label project.Name
+        formControlLabel.label projectName
         formControlLabel.control (
             Mui.checkbox [
-                prop.style [ style.color (projectColour project.Solution.Colour) ]
+                prop.style [ style.color (projectColour (solution projectName).Colour) ]
                 checkbox.checked' packagedProjectStatus.HasCodeChanges
-                prop.onClick onClick ] ) ]
+                prop.onClick onClick ]) ]
 
-let private solutionCodeChanges (solution:Solution, packagedProjectStatuses:seq<string * PackagedProjectStatus>) =
+let private solutionCodeChanges (solution:Solution, packagedProjectStatuses:(string * PackagedProjectStatus) list) =
     let sorted =
         packagedProjectStatuses
         |> List.ofSeq
-        |> List.sortBy (fun (_, pps) -> pps.Project.Name)
+        |> List.map snd
+        |> List.sortBy (fun pps -> pps.ProjectName)
     Mui.grid [
         grid.item true
         grid.children [
             Mui.typography [
+                typography.paragraph false
                 typography.color.primary
                 typography.children [
                    Html.strong solution.Name
@@ -77,15 +83,15 @@ let private solutionCodeChanges (solution:Solution, packagedProjectStatuses:seq<
                 formGroup.children [
                     yield! sorted |> List.map packageCheckbox ] ] ] ]
 
-let private codeChanges packagedProjectStatusMap =
-    let solution (packagedProjectStatus:PackagedProjectStatus) = packagedProjectStatus.Project.Solution
+let private codeChanges (packagedProjectStatusMap:HashMap<string, PackagedProjectStatus>) =
     let groupedAndSorted =
         packagedProjectStatusMap
         |> List.ofSeq
-        |> List.groupBy (snd >> solution)
+        |> List.groupBy (fun (_, pps) -> solution pps.ProjectName)
         |> List.sortBy (fun (solution, _) -> solutionSortOrder solution, solution.Name)
     Html.div [
         Mui.typography [
+            typography.paragraph false
             typography.color.secondary
             typography.children [
                 Html.text "Please select the "
@@ -108,12 +114,12 @@ let private analysis (affected:(ProjectDependencyPaths * int) list) currentTab l
         let isDone = ordinal <= latestDone
         let isNext = ordinal = latestDone + 1
         let stepProject (projectDependencyPaths:ProjectDependencyPaths) =
-            let project = projectDependencyPaths.Project
+            let projectName = projectDependencyPaths.ProjectName
             Mui.typography [
                 typography.paragraph false
                 if isDone then typography.color.textSecondary
                 typography.children [
-                    Html.text (sprintf "%s (%s)" project.Name project.Solution.Name) ] ]
+                    Html.text (sprintf "%s (%s)" projectName (solution projectName).Name) ] ]
         Mui.typography [
             typography.variant.h6
             typography.paragraph false
@@ -136,7 +142,7 @@ let private analysis (affected:(ProjectDependencyPaths * int) list) currentTab l
             let sorted =
                 paths
                 |> List.map fst
-                |> List.sortBy (fun pdp -> solutionSortOrder pdp.Project.Solution, pdp.Project.Name)
+                |> List.sortBy (fun pdp -> solutionSortOrder (solution pdp.ProjectName), pdp.ProjectName)
             maxDepth + 1, sorted)
     let current = match currentTab with | Development -> "development" | CommittingPushing -> "committing / pushing"
     Html.div [
@@ -160,7 +166,7 @@ let private analysisTabs affected currentTab latestDone =
             tab.icon (
                 Mui.icon [
                     icon.classes [ classes.icon.root iconClassName ]
-                    if analysisTab = currentTab then icon.color.primary ] )
+                    if analysisTab = currentTab then icon.color.primary ])
             tab.value (tabValue analysisTab)
             prop.onClick (onClick analysisTab) ]
     Html.div [
@@ -188,7 +194,7 @@ let private visualization showingVisualization =
                         Mui.checkbox [
                             checkbox.color.primary
                             checkbox.checked' showingVisualization
-                            prop.onClick (fun _ -> transact (fun () -> cShowingVisualization.Value <- not cShowingVisualization.Value ) ) ] ) ] ] ]
+                            prop.onClick (fun _ -> transact (fun () -> cShowingVisualization.Value <- not cShowingVisualization.Value)) ]) ] ] ]
         if showingVisualization then
             Html.div [
                 prop.style [ style.paddingLeft 20 ]
@@ -200,20 +206,21 @@ let private visualization showingVisualization =
                         prop.src VISUALIZATION_FILENAME
                         prop.alt "Visualization of project/package dependencies" ]
                     Mui.typography [
+                        typography.paragraph false
                         typography.children [
                             Html.text (sprintf "%s projects within the same solution share the same colour (with a darker shade used for " BULLET)
                             Html.strong "packaged"
                             Html.text " projects)" ] ]
                     Mui.typography [
+                        typography.paragraph false
                         typography.children [
                             Html.text (sprintf "%s solid lines indicate project-to-" BULLET)
                             Html.strong "package"
                             Html.text " references" ] ]
                     Mui.typography [
+                        typography.paragraph false
                         typography.children [
                             Html.text (sprintf "%s dotted lines indicate project-to-project references" BULLET) ] ] ] ] ]
-
-// TEMP-NMB...let private debug temp = Html.div [ Mui.typography [ typography.children [ Html.text (sprintf "%A" temp) ] ] ]
 
 let private app =
     React.functionComponent (fun () ->
@@ -228,6 +235,6 @@ let private app =
                 analysisTabs affected currentTab tabLatestDoneMap.[currentTab]
             | None -> ()
             Mui.divider []
-            visualization showingVisualization ] )
+            visualization showingVisualization ])
 
 ReactDOM.render (app, document.getElementById "app") // needs to match id of div in index.html

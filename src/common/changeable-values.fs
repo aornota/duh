@@ -22,3 +22,5 @@ let cCurrentTab = cval Development
 let cTabLatestDoneMap : ChangeableMap<AnalysisTab, int option> = [ (Development, None) ; (CommittingPushing, None) ] |> cmap
 
 let cShowingVisualization = cval SHOW_VISUALIZATION__DEFAULT
+
+let analysisTabs = [ Development ; CommittingPushing ]

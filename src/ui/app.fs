@@ -4,7 +4,6 @@ open Aornota.Duh.Common.AdaptiveValues
 open Aornota.Duh.Common.ChangeableValues
 open Aornota.Duh.Common.DependencyPaths
 open Aornota.Duh.Common.Domain
-open Aornota.Duh.Common.DomainData
 
 open Browser.Dom
 
@@ -26,11 +25,8 @@ let [<Literal>] private VISUALIZATION_FILENAME = "visualization.svg" // note: ke
 
 let [<Literal>] private BULLET = "●"
 
-let private solution projectName = solutionMap.[projectMap.[projectName].SolutionName]
-
 let private projectColour = function
-    | Blue -> color.blue | Coral -> color.coral | Cyan -> color.cyan | Goldenrod -> color.goldenRod | Grey -> color.gray | Pink -> color.pink | Salmon -> color.salmon
-    | SeaGreen -> color.seaGreen | SkyBlue -> color.skyBlue | SlateBlue -> color.slateBlue | SlateGrey -> color.slateGray | SteelBlue -> color.steelBlue | Yellow -> color.yellow
+    | Gold -> color.gold | LightSkyBlue -> color.lightSkyBlue | Plum -> color.plum | SandyBrown -> color.sandyBrown | Tomato -> color.tomato | YellowGreen -> color.yellowGreen
 
 let private preamble =
     Html.div [
@@ -64,11 +60,7 @@ let private packageCheckbox (packagedProjectStatus:PackagedProjectStatus) =
                 prop.onClick onClick ]) ]
 
 let private solutionCodeChanges (solution:Solution, packagedProjectStatuses:(string * PackagedProjectStatus) list) =
-    let sorted =
-        packagedProjectStatuses
-        |> List.ofSeq
-        |> List.map snd
-        |> List.sortBy (fun pps -> pps.ProjectName)
+    let sorted = packagedProjectStatuses |> List.map snd |> List.sortBy (fun pps -> pps.ProjectName)
     Mui.grid [
         grid.item true
         grid.children [
@@ -94,9 +86,7 @@ let private codeChanges (packagedProjectStatusMap:HashMap<string, PackagedProjec
             typography.paragraph false
             typography.color.secondary
             typography.children [
-                Html.text "Please select the "
-                Html.strong "packaged"
-                Html.text " projects for which code changes have been made:" ] ]
+                Html.text "Please select the packaged projects for which code changes have been made:" ] ]
         Mui.grid [
             prop.style [ style.paddingTop 20 ; style.paddingLeft 20 ; style.paddingBottom 20 ]
             grid.container true
@@ -104,12 +94,12 @@ let private codeChanges (packagedProjectStatusMap:HashMap<string, PackagedProjec
             grid.children [
                 yield! groupedAndSorted |> List.map solutionCodeChanges ] ] ]
 
-let private analysis (affected:(ProjectDependencyPaths * int) list) currentTab latestDone =
+let private analysis (affected:(int * ProjectDependencyPaths list) list) currentTab latestDone =
     let latestDone = latestDone |> Option.defaultValue 0
     (* TODO-NMB:
-        -- Tab-specific notes?...
-        -- Various UI improvements, e.g.:
-            - better formatting... *)
+        - Tab-specific notes?...
+        - Various UI improvements, e.g.:
+            -- better formatting... *)
     let step (ordinal, projectsDependencyPaths:ProjectDependencyPaths list) = [
         let isDone = ordinal <= latestDone
         let isNext = ordinal = latestDone + 1
@@ -134,16 +124,6 @@ let private analysis (affected:(ProjectDependencyPaths * int) list) currentTab l
                 button.color.primary
                 prop.onClick (fun _ -> transact (fun () -> cTabLatestDoneMap.[currentTab] <- Some ordinal ))
                 button.children [ Html.text "Done" ] ] ]
-    let groupedAndSorted =
-        affected
-        |> List.groupBy snd
-        |> List.sortBy fst
-        |> List.map (fun (maxDepth, paths) ->
-            let sorted =
-                paths
-                |> List.map fst
-                |> List.sortBy (fun pdp -> solutionSortOrder (solution pdp.ProjectName), pdp.ProjectName)
-            maxDepth + 1, sorted)
     let current = match currentTab with | Development -> "development" | CommittingPushing -> "committing / pushing"
     Html.div [
         prop.style [ style.paddingLeft 20 ; style.paddingBottom 20 ]
@@ -153,7 +133,7 @@ let private analysis (affected:(ProjectDependencyPaths * int) list) currentTab l
                 typography.children [
                     Html.strong "TODO-NMB: "
                     Html.text (sprintf "Specific notes about these %s instructions - plus various UI improvements..." current) ] ]
-            yield! groupedAndSorted |> List.map step |> List.collect id ] ]
+            yield! affected |> List.map step |> List.collect id ] ]
 
 let private analysisTabs affected currentTab latestDone =
     let tabValue = function | Development -> 0 | CommittingPushing -> 1 // seemingly needs to be zero-based
@@ -180,8 +160,7 @@ let private analysisTabs affected currentTab latestDone =
             tabs.indicatorColor.primary
             tabs.value (tabValue currentTab)
             tabs.children [
-                muiTab Development
-                muiTab CommittingPushing ] ]
+                yield! analysisTabs |> List.map muiTab ] ]
         analysis affected currentTab latestDone ]
 
 let private visualization showingVisualization =
@@ -208,19 +187,23 @@ let private visualization showingVisualization =
                     Mui.typography [
                         typography.paragraph false
                         typography.children [
-                            Html.text (sprintf "%s projects within the same solution share the same colour (with a darker shade used for " BULLET)
-                            Html.strong "packaged"
-                            Html.text " projects)" ] ]
+                            Html.text (sprintf "%s projects are shown if they are packaged or if they have package references" BULLET) ] ]
                     Mui.typography [
                         typography.paragraph false
                         typography.children [
-                            Html.text (sprintf "%s solid lines indicate project-to-" BULLET)
-                            Html.strong "package"
-                            Html.text " references" ] ]
+                            Html.text (sprintf "%s packaged projects are shown as oblongs" BULLET) ] ]
                     Mui.typography [
                         typography.paragraph false
                         typography.children [
-                            Html.text (sprintf "%s dotted lines indicate project-to-project references" BULLET) ] ] ] ] ]
+                            Html.text (sprintf "%s projects in the same solution are shown with the same colour" BULLET) ] ]
+                    Mui.typography [
+                        typography.paragraph false
+                        typography.children [
+                            Html.text (sprintf "%s solid arrows indicate package references" BULLET) ] ]
+                    Mui.typography [
+                        typography.paragraph false
+                        typography.children [
+                            Html.text (sprintf "%s dotted arrows indicate project references" BULLET) ] ] ] ] ]
 
 let private app =
     React.functionComponent (fun () ->

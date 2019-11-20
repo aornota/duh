@@ -42,12 +42,12 @@ let private mainAsync argv = async {
         sourcedLogger.Error ("Unexpected error -> {errorMessage}\n{stackTrace}", exn.Message, exn.StackTrace)
         retval <- 1
 
-    writeBlankLine ()
+    writeBlankLine()
     return retval }
 
 [<EntryPoint>]
 let main argv =
     async {
-        do! Async.SwitchToThreadPool ()
+        do! Async.SwitchToThreadPool()
         return! mainAsync argv
     } |> Async.RunSynchronously

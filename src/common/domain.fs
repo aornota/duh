@@ -2,7 +2,7 @@ module Aornota.Duh.Common.Domain
 
 open System
 
-type Colour = | Blue | Coral | Cyan | Goldenrod | Grey | Pink | Salmon | SeaGreen | SkyBlue | SlateBlue | SlateGrey | SteelBlue | Yellow
+type Colour = | Gold | LightSkyBlue | Plum | SandyBrown | Tomato | YellowGreen
 
 type Repo = | AzureDevOps | Subversion
 
@@ -15,9 +15,6 @@ type ProjectMap = Map<string, Project>
 type Dependency = | PackageReference of projectName : string | ProjectReference of projectName : string
 
 type ProjectDependencies = { ProjectName : string ; Dependencies : Dependency Set }
-
-let colourText (colour:Colour) = colour.ToString().ToLower()
-let colourLightText colour = sprintf "light%s" (colourText colour)
 
 let repoText = function | AzureDevOps -> "Azure DevOps" | Subversion -> "Subversion"
 
@@ -36,8 +33,6 @@ let projectAndSolutionFolderText (solutionMap:SolutionMap) project =
     | Some extraPath -> sprintf "%s/%s/%s" (solutionFolderText solutionMap.[project.SolutionName]) extraPath project.Name
     | None -> sprintf "%s/%s" (solutionFolderText solutionMap.[project.SolutionName]) project.Name
 let projectAndSolutionPathText (solutionMap:SolutionMap) project = sprintf "%s/%s" (projectAndSolutionFolderText solutionMap project) (projectFileText project)
-let projectColour (solutionMap:SolutionMap) project =
-    if project.Packaged then colourText solutionMap.[project.SolutionName].Colour else colourLightText solutionMap.[project.SolutionName].Colour
 
 let isPackageReference = function | PackageReference _ -> true | ProjectReference _ -> false
 let dependencyProjectName = function | PackageReference projectName | ProjectReference projectName -> projectName

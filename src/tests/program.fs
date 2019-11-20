@@ -42,7 +42,7 @@ let private mainAsync argv = async {
         // Note: Skip remaining tests if any domain data tests failed (but otherwise run all remaining tests, even if some of them fail).
 
         if retval = 1 then
-            writeBlankLine ()
+            writeBlankLine()
             sourcedLogger.Warning "Skipping remaining tests because one or more domain data tests failed"
         else
             writeNewLine "adaptive analysis scenario tests:\n" ConsoleColor.DarkYellow
@@ -50,20 +50,20 @@ let private mainAsync argv = async {
 
             writeNewLine "warning-only tests:\n" ConsoleColor.DarkYellow
             if runTestsWithArgs defaultConfig argv Tests.warningOnlyTests = 1 then
-                writeBlankLine ()
+                writeBlankLine()
                 sourcedLogger.Warning "One or more warning-only tests failed"
             else if retval = 0 then
-                writeBlankLine ()
+                writeBlankLine()
                 sourcedLogger.Information "All tests passed"
 
         if retval = 1 then
-            writeBlankLine ()
+            writeBlankLine()
             sourcedLogger.Error "One or more tests failed"
     with | exn ->
         sourcedLogger.Error ("Unexpected error: {errorMessage}\n{stackTrace}", exn.Message, exn.StackTrace)
         retval <- 1
 
-    writeBlankLine ()
+    writeBlankLine()
     return retval }
 
 [<EntryPoint>]

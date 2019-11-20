@@ -6,10 +6,10 @@ let [<Literal>] IS_SCENARIO_TEST_DATA = true
 
 let solutionMap =
     [
-        { Name = "Domain" ; Repo = AzureDevOps ; RootPath = "source" ; Colour = Grey ; SortOrder = Some 1 }
-        { Name = "Infrastructure" ; Repo = AzureDevOps ; RootPath = "source" ; Colour = Cyan ; SortOrder = Some 2 }
+        { Name = "Domain" ; Repo = AzureDevOps ; RootPath = "source" ; Colour = Gold ; SortOrder = Some 1 }
+        { Name = "Infrastructure" ; Repo = AzureDevOps ; RootPath = "source" ; Colour = Tomato ; SortOrder = Some 2 }
 
-        { Name = "Shared" ; Repo = Subversion ; RootPath = "Shared" ; Colour = Salmon ; SortOrder = None }
+        { Name = "Shared" ; Repo = Subversion ; RootPath = "Shared" ; Colour = Plum ; SortOrder = None }
     ]
     |> List.map (fun sln -> sln.Name, sln) |> Map
 
@@ -22,6 +22,7 @@ let projectMap =
         { Name = "Product.Models" ; SolutionName = "Domain" ; ExtraPath = None ; Packaged = true }
         { Name = "Order.Interfaces" ; SolutionName = "Domain" ; ExtraPath = None ; Packaged = true }
         { Name = "Order.Models" ; SolutionName = "Domain" ; ExtraPath = None ; Packaged = true }
+        { Name = "Order.Extensions" ; SolutionName = "Domain" ; ExtraPath = None ; Packaged = true }
         { Name = "Infrastructure.Interfaces" ; SolutionName = "Domain" ; ExtraPath = None ; Packaged = true }
 
         { Name = "Repositories" ; SolutionName = "Infrastructure" ; ExtraPath = None ; Packaged = true }
@@ -77,6 +78,12 @@ let projectsDependencies =
             ] |> Set.ofList
         }
         {
+            ProjectName = "Order.Extensions"
+            Dependencies = [
+                PackageReference "Order.Models"
+            ] |> Set.ofList
+        }
+        {
             ProjectName = "Infrastructure.Interfaces"
             Dependencies = [
                 PackageReference "Order.Interfaces"
@@ -108,6 +115,7 @@ let projectsDependencies =
         {
             ProjectName = "Tools.Tests"
             Dependencies = [
+                PackageReference "Order.Extensions"
                 ProjectReference "Tools"
             ] |> Set.ofList
         }

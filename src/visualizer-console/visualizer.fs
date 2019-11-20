@@ -49,8 +49,10 @@ let private createGraphvizInputFile (logger:ILogger) (inputFile:string) projects
     projectsDependencies
     |> List.iter (fun pd->
         let fromNode = quoteName pd.ProjectName
-        let colour = quoteName (projectColour solutionMap projectMap.[pd.ProjectName])
-        fprintfn writer "   %s [color=%s,style=filled];" fromNode colour)
+        let project = projectMap.[pd.ProjectName]
+        let shape = if project.Packaged then "shape=box," else String.Empty
+        let colour = quoteName (solutionMap.[project.SolutionName].Colour.ToString().ToLower())
+        fprintfn writer "   %s [%scolor=%s,style=filled];" fromNode shape colour)
     fprintfn writer "   }"
 
 let private startProcessAndCaptureStandardOutput (logger:ILogger) cmd cmdParams =
@@ -59,11 +61,11 @@ let private startProcessAndCaptureStandardOutput (logger:ILogger) cmd cmdParams 
     si.UseShellExecute <- false
     si.RedirectStandardError <- true
     si.RedirectStandardOutput <- true
-    use p = new Process ()
+    use p = new Process()
     p.StartInfo <- si
-    if p.Start () then
+    if p.Start() then
         use stdError = p.StandardError
-        let error = stdError.ReadToEnd ()
+        let error = stdError.ReadToEnd()
         if not (String.IsNullOrWhiteSpace error) then failwith error
         use stdOut = p.StandardOutput
         let output = stdOut.ReadToEnd()

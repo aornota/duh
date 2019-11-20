@@ -13,7 +13,8 @@
         <Compile Include="..\common\domain-data.fs" />
         <Compile Include="..\common\dependency-paths.fs" />
         <Compile Include="..\common\changeable-values.fs" />
-        <Compile Include="..\common\adpative-values.fs" />
+        <Compile Include="..\common\adaptive-values.fs" />
+        <Compile Include="tests.fs" />
         <Compile Include="program.fs" />
     </ItemGroup>
     <ItemGroup> <!-- appsettings.json -->

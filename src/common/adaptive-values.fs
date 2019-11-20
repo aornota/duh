@@ -46,7 +46,7 @@ let aAnalysis = adaptive {
                 Some ({ ProjectName = projectDependencyPaths.ProjectName ; DependencyPaths = uniqueSelfOrDirectWithMaxDepth |> List.map fst }, maxDepth)
     let packagedProjectStatuses = packagedProjectStatusMap |> List.ofSeq
     if packagedProjectStatuses |> List.map snd |> List.exists (fun pps -> pps.HasCodeChanges) then
-        let affected = projectsDependencyPaths |> List.choose affectedProjectDependencyPaths
+        let affected = (projectsDependencyPaths.Force ()) |> List.choose affectedProjectDependencyPaths
         transact (fun () -> cTabLatestDoneMap.[Development] <- None)
         transact (fun () -> cTabLatestDoneMap.[CommittingPushing] <- None)
         return! AVal.map3 (fun a b c -> Some(a, b, c)) (AVal.constant affected) cCurrentTab (cTabLatestDoneMap |> AMap.toAVal)

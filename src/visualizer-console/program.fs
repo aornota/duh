@@ -6,9 +6,9 @@ open Aornota.Duh.VisualizerConsole.Visualizer
 
 open System
 
-open Microsoft.Extensions.Configuration
-
 open Giraffe.SerilogExtensions
+
+open Microsoft.Extensions.Configuration
 
 open Serilog
 
@@ -39,10 +39,10 @@ let private mainAsync argv = async {
         writeNewLine "\nvisualize:\n" ConsoleColor.DarkYellow
         visualize logger
     with | exn ->
-        sourcedLogger.Error("Unexpected error -> {errorMessage}\n{stackTrace}", exn.Message, exn.StackTrace)
+        sourcedLogger.Error ("Unexpected error -> {errorMessage}\n{stackTrace}", exn.Message, exn.StackTrace)
         retval <- 1
 
-    writeBlankLine()
+    writeBlankLine ()
     return retval }
 
 [<EntryPoint>]

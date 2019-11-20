@@ -21,11 +21,12 @@ open Fake.Tools.Git
 
 let [<Literal>] private VISUALIZATION_FILENAME = "visualization.svg" // keep synchronized with ./src/ui/app.fs and ./src/visualizer-console/visualizer.fs
 
+let private testsDir = Path.getFullName "./src/tests"
+
 let private uiDir = Path.getFullName "./src/ui"
 let private uiPublicDir = uiDir </> "public"
 let private uiPublishDir = uiDir </> "publish"
 
-let private devConsoleDir = Path.getFullName "./src/dev-console"
 let private visualizerConsoleDir = Path.getFullName "./src/visualizer-console"
 
 let private platformTool tool winTool =
@@ -68,6 +69,8 @@ Target.create "restore" (fun _ ->
     runTool yarnTool "install --frozen-lockfile" __SOURCE_DIRECTORY__
     runDotNet "restore" uiDir)
 
+Target.create "run-tests" (fun _ -> runDotNet "run -c Release" testsDir)
+
 Target.create "run-visualizer-console" (fun _ -> runDotNet "run" visualizerConsoleDir)
 
 Target.create "copy-visualization-file" (fun _ ->
@@ -94,19 +97,17 @@ Target.create "publish-gh-pages" (fun _ ->
     Commit.exec tempGhPagesDir (sprintf "Publish gh-pages (%s)" (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")))
     Branches.push tempGhPagesDir)
 
-Target.create "run-dev-console" (fun _ -> runDotNet "run" devConsoleDir)
-
 Target.create "help" (fun _ ->
     printfn "\nThese useful build targets can be run via 'fake build -t {target}':"
-    printfn "\n\trun -> builds, runs and watches [non-production] ui (served via webpack-dev-server)"
-    printfn "\n\tbuild -> builds [production] ui (which writes output to .\\src\\ui\\publish)"
-    printfn "\n\tpublish-gh-pages -> builds [production] ui, then pushes to gh-pages branch"
-    printfn "\n\trun-dev-console -> builds and runs [Debug] dev-console"
+    printfn "\n\trun -> builds and runs [Release] tests; builds and runs [Debug] visualizer-console (and copies output to .\\src\\ui\\public); and builds, runs and watches [non-production] ui (served via webpack-dev-server)"
+    printfn "\n\tbuild -> builds and runs [Release] tests; builds and runs [Debug] visualizer-console (and copies output to .\\src\\ui\\public); and builds [production] ui (which writes output to .\\src\\ui\\publish)"
+    printfn "\n\tpublish-gh-pages -> builds and runs [Release] tests; builds and runs [Debug] visualizer-console (and copies output to .\\src\\ui\\public); builds [production] ui (which writes output to .\\src\\ui\\publish); and pushes to gh-pages branch"
+    printfn "\n\trun-tests -> builds and runs [Release] tests"
     printfn "\n\trun-visualizer-console -> builds and runs [Debug] visualizer-console (which writes output to .\\src\\visualizer-console)"
     printfn "\n\thelp -> shows this list of build targets\n")
 
 "clean" ==> "restore"
-"run-visualizer-console" ==> "copy-visualization-file"
+"run-tests" ==> "run-visualizer-console" ==> "copy-visualization-file"
 "restore" ==> "copy-visualization-file" ==> "run"
 "restore" ==> "copy-visualization-file" ==> "build" ==> "publish-gh-pages"
 

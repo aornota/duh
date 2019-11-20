@@ -1,5 +1,6 @@
-group dev-console
+group tests
 
+    Expecto
 	FSharp.Core
     FSharp.Data.Adaptive
     Giraffe.SerilogExtensions

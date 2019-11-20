@@ -705,7 +705,7 @@ NUGET
       System.Xml.XmlDocument (>= 4.3)
       System.Xml.XPath (>= 4.3)
 
-GROUP dev-console
+GROUP tests
 STORAGE: NONE
 RESTRICTION: == netcoreapp3.0
 NUGET
@@ -714,6 +714,9 @@ NUGET
       FSharp.Data.Adaptive (>= 0.0.7 < 0.1)
     Adaptify.MSBuild (0.0.3)
       Adaptify.Core (0.0.3)
+    Expecto (8.12)
+      FSharp.Core (>= 4.3.4)
+      Mono.Cecil (>= 0.10.3)
     Fable.Remoting.Json (2.6)
       FSharp.Core (>= 4.6.2)
       Newtonsoft.Json (>= 12.0.2)
@@ -775,6 +778,7 @@ NUGET
       System.Buffers (>= 4.5)
     Microsoft.NETCore.Platforms (3.0)
     Microsoft.NETCore.Targets (3.0)
+    Mono.Cecil (0.11.1)
     NETStandard.Library (2.0.3)
       Microsoft.NETCore.Platforms (>= 1.1)
     Newtonsoft.Json (12.0.3)

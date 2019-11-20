@@ -1,13 +1,13 @@
 {
     "name": "duh",
-    "version": "β",
+    "version": "γ",
     "description": "Work-in-progress experiments with FSharp.Data.Adaptive &c.",
     "repository": "git@github.com:aornota/duh.git",
     "author": "dj narration",
     "license": "Unlicense",
     "dependencies": {
         "@material-ui/core": "^4.6.1",
-        "@material-ui/lab": "^4.0.0-alpha.31",
+        "@material-ui/lab": "^4.0.0-alpha.32",
         "react": "^16.12.0",
         "react-dom": "^16.12.0"
     },

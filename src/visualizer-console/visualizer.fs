@@ -23,13 +23,13 @@ let [<Literal>] private SOURCE = "VisualizerConsole.Visualizer"
 let private quoteName n = sprintf "\"%s\"" n
 
 let private writeProjectDependencies writer (projectDependencies:ProjectDependencies) =
-    let getNodes dependencies = dependencies |> List.map (dependencyProjectName >> quoteName) |> List.sort |> concatenate ", "
+    let getNodes dependencies = dependencies |> List.map (dependencyProjectName >> quoteName) |> List.sort |> concatenateComma
     let fromNode = quoteName projectDependencies.ProjectName
     let packageReferences = projectDependencies.Dependencies |> List.ofSeq |> List.filter isPackageReference
     if packageReferences.Length > 0 then
         let notPackaged = packageReferences |> List.filter (dependencyIsPackaged projectMap >> not)
         if notPackaged.Length > 0 then
-            let errant = notPackaged |> List.map dependencyProjectName |> concatenate " | "
+            let errant = notPackaged |> List.map dependencyProjectName |> concatenatePipe
             failwithf "The following project/s are listed as package references for %s but are not packaged: %s" projectDependencies.ProjectName errant
         fprintfn writer "   %s -> { rank=none; %s }" fromNode (getNodes packageReferences)
     let projectReferences = projectDependencies.Dependencies |> Seq.filter (isPackageReference >> not) |> List.ofSeq

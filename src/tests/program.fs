@@ -63,6 +63,7 @@ let private mainAsync argv = async {
         sourcedLogger.Error ("Unexpected error: {errorMessage}\n{stackTrace}", exn.Message, exn.StackTrace)
         retval <- 1
 
+    writeBlankLine ()
     return retval }
 
 [<EntryPoint>]

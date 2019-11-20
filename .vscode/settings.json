@@ -9,8 +9,8 @@
 		, "src/**/bin/": true
         , "src/**/obj/": true
 		, "src/ui/publish/": true
-		, "src/visualizer-console/*.graphviz": true
-		, "src/visualizer-console/*.png": true
+		, "src/visualizer-console/visualization.dot.graphviz": true
+		, "src/visualizer-console/visualization.svg": true
 		, "temp-gh-pages/": true
 		, ".editorconfig": true
 		, "LICENSE": true

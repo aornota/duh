@@ -174,4 +174,4 @@ let [<Tests>] warningOnlyTests =
                     | moreThanOnce ->
                         let moreThanOnceNames = moreThanOnce |> List.map (fun di -> di.ProjectName) |> List.distinct |> concatenate "; "
                         Some (sprintf "%s (%s)" pdp.ProjectName moreThanOnceNames))
-            Expect.isEmpty invalid (sprintf "Projects exist in projectsDependencies with superflous package references: %s" (invalid |> concatenatePipe)) } ]
+            Expect.isEmpty invalid (sprintf "Projects exist in projectsDependencies with superfluous package references: %s" (invalid |> concatenatePipe)) } ]

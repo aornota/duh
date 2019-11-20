@@ -52,7 +52,7 @@ let private mainAsync argv = async {
             if runTestsWithArgs defaultConfig argv Tests.warningOnlyTests = 1 then
                 writeBlankLine ()
                 sourcedLogger.Warning "One or more warning-only tests failed"
-            else
+            else if retval = 0 then
                 writeBlankLine ()
                 sourcedLogger.Information "All tests passed"
 

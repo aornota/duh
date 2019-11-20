@@ -44,16 +44,111 @@ let [<Tests>] domainDataTests =
 
 let [<Tests>] adaptiveAnalysisScenarioTests =
     testList "adaptive analysis scenario tests" [
+        // Note: This test will be skipped unless IS_SCENARIO_TEST_DATA (in ../src/common/domain-data.fs) is true.
         test "simple scenario" {
+            if not IS_SCENARIO_TEST_DATA then skiptest "Test can only be run when domain data is scenario test data"
+
             let setHasCodeChanges projectName = transact (fun _ -> cPackagedProjectStatusMap.[projectName] <- { ProjectName = projectName ; HasCodeChanges = true })
-            (* TODO-NMB:
-                - "Transact" cPackagedProjectStatusMap (and cCurrentTab &c.?)...
-                    -- then "force" aAnalysis...
-                    ...and check as expected (possibly using simplified structure, e.g. sorted by max-depth | ordered by project name and by direct dependency only?)... *)
-            setHasCodeChanges "Product.Interfaces"
-            let analysis = aAnalysis |> AVal.force
-            //failtestf "%A" analysis
-            Expect.equal true true "never fails" } ] // TEMP-NMB...
+
+            let mutable analysis = aAnalysis |> AVal.force
+            Expect.isNone analysis "Analysis should be None before marking any packages as having code changes"
+
+            setHasCodeChanges "Common.Extensions"
+            analysis <- aAnalysis |> AVal.force
+            // TODO-NMB: The expected results are a pain to maintain - so only check a (sorted?) subset and/or a summary?...
+            let mutable expectedAffected = [
+                ({
+                    ProjectName = "Common.Extensions"
+                    DependencyPaths = [
+                        DependencyPath [
+                            { ProjectName = "Common.Extensions" ; DependencyType = Self } ] ]
+                }, 0)
+                ({
+                    ProjectName = "Repositories.Tests"
+                    DependencyPaths = [
+                        DependencyPath [
+                            { ProjectName = "Common.Extensions" ; DependencyType = PackageDependency 1 } ] ]
+                }, 1)
+                ({
+                    ProjectName = "Tools"
+                    DependencyPaths = [
+                        DependencyPath [
+                            { ProjectName = "Common.Extensions" ; DependencyType = PackageDependency 1 } ] ]
+                }, 1);
+                ({
+                    ProjectName = "Tools.Tests"
+                    DependencyPaths = [
+                        DependencyPath [
+                            { ProjectName = "Common.Extensions" ; DependencyType = PackageDependency 2 }
+                            { ProjectName = "Tools" ; DependencyType = ProjectDependency 1 } ] ]
+                }, 2) ]
+            let mutable expectedCurrentTab = Development
+            let mutable expectedTabLatestDoneMap = [(Development, None); (CommittingPushing, None)] |> HashMap.ofList
+            Expect.equal analysis (Some (expectedAffected, expectedCurrentTab, expectedTabLatestDoneMap))
+                "Specific analysis expected after marking Common.Extensions as having code changes"
+
+            transact (fun _ -> cCurrentTab.Value <- CommittingPushing)
+            analysis <- aAnalysis |> AVal.force
+            expectedCurrentTab <- CommittingPushing
+            Expect.equal analysis (Some (expectedAffected, expectedCurrentTab, expectedTabLatestDoneMap))
+                "Same specific analysis expected - but current tab should now be CommittingPushing - after changing the current tab to CommittingPushing"
+
+            transact (fun _ -> cTabLatestDoneMap.[CommittingPushing] <- Some 1)
+            analysis <- aAnalysis |> AVal.force
+            expectedTabLatestDoneMap <- [(Development, None); (CommittingPushing, Some 1)] |> HashMap.ofList
+            Expect.equal analysis (Some (expectedAffected, expectedCurrentTab, expectedTabLatestDoneMap))
+                "Same specific analysis and current tab expected - but with step 1 marked as done - after marking step 1 as done"
+
+            setHasCodeChanges "Order.Models"
+            analysis <- aAnalysis |> AVal.force
+            expectedAffected <- [
+                ({
+                    ProjectName = "Common.Extensions"
+                    DependencyPaths = [
+                        DependencyPath [
+                            { ProjectName = "Common.Extensions" ; DependencyType = Self } ] ]
+                }, 0)
+                ({
+                    ProjectName = "Order.Models"
+                    DependencyPaths = [
+                        DependencyPath [
+                            { ProjectName = "Order.Models" ; DependencyType = Self } ] ]
+                }, 0)
+                ({
+                    ProjectName = "Repositories"
+                    DependencyPaths = [
+                        DependencyPath [
+                            { ProjectName = "Order.Models" ; DependencyType = PackageDependency 1 } ] ]
+                }, 1)
+                ({
+                    ProjectName = "Repositories.Tests"
+                    DependencyPaths = [
+                        DependencyPath [
+                            { ProjectName = "Common.Extensions" ; DependencyType = PackageDependency 1 } ]
+                        DependencyPath [
+                            { ProjectName = "Order.Models" ; DependencyType = PackageDependency 2 }
+                            { ProjectName = "Repositories" ; DependencyType = ProjectDependency 1 } ] ]
+                }, 2)
+                ({
+                    ProjectName = "Tools"
+                    DependencyPaths = [
+                        DependencyPath [
+                            { ProjectName = "Common.Extensions" ; DependencyType = PackageDependency 1 } ]
+                        DependencyPath [
+                            { ProjectName = "Order.Models" ; DependencyType = PackageDependency 2 }
+                            { ProjectName = "Repositories" ; DependencyType = PackageDependency 1 } ] ]
+                }, 2)
+                ({
+                    ProjectName = "Tools.Tests"
+                    DependencyPaths = [
+                        DependencyPath [
+                            { ProjectName = "Order.Models" ; DependencyType = PackageDependency 3 }
+                            { ProjectName = "Repositories" ; DependencyType = PackageDependency 2 }
+                            { ProjectName = "Tools" ; DependencyType = ProjectDependency 1 } ] ]
+                }, 3) ]
+            expectedTabLatestDoneMap <- [(Development, None); (CommittingPushing, None)] |> HashMap.ofList
+            Expect.equal analysis (Some (expectedAffected, expectedCurrentTab, expectedTabLatestDoneMap))
+                "Different specific analysis expected - with current tab still CommittingPushing but no steps marked as done - after also marking Order.Models as having code changes" } ]
 
 let [<Tests>] warningOnlyTests =
     testList "warning-only tests" [

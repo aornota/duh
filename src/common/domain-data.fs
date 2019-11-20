@@ -2,6 +2,8 @@ module Aornota.Duh.Common.DomainData
 
 open Aornota.Duh.Common.Domain
 
+let [<Literal>] IS_SCENARIO_TEST_DATA = true
+
 let solutionMap =
     [
         { Name = "Domain" ; Repo = AzureDevOps ; RootPath = "source" ; Colour = Grey ; SortOrder = Some 1 }

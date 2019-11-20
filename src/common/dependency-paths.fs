@@ -52,7 +52,7 @@ let private dependencyPaths (projectDependencies:ProjectDependencies) =
     let project = projectMap.[projectDependencies.ProjectName]
     let self = if project.Packaged then Some [ { ProjectName = project.Name ; DependencyType = Self } ] else None
     let direct1 = projectDependencies.Dependencies |> direct 1
-    if direct1 |> List.exists (fun di -> di.ProjectName = project.Name) then failwithf "%s has one or more references to itself" project.Name
+    if direct1 |> List.exists (fun di -> di.ProjectName = project.Name) then failwithf "%s has one or more self-references" project.Name
     let paths = direct1 |> List.map (fun di -> DependencyPath [ di ]) |> traverse 1
     let dependencyPaths = match self with | Some self -> DependencyPath self :: paths | None -> paths
     { ProjectName = project.Name ; DependencyPaths = dependencyPaths |> List.filter (fun (DependencyPath dp) -> not dp.IsEmpty) }

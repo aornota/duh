@@ -44,8 +44,7 @@ let aAnalysis = adaptive {
                         |> List.maxBy snd)
                 let maxDepth = uniqueSelfOrDirectWithMaxDepth |> List.map snd |> List.max
                 Some ({ ProjectName = projectDependencyPaths.ProjectName ; DependencyPaths = uniqueSelfOrDirectWithMaxDepth |> List.map fst }, maxDepth)
-    let packagedProjectStatuses = packagedProjectStatusMap |> List.ofSeq
-    if packagedProjectStatuses |> List.map snd |> List.exists (fun pps -> pps.HasCodeChanges) then
+    if packagedProjectStatusMap |> List.ofSeq |> List.map snd |> List.exists (fun pps -> pps.HasCodeChanges) then
         let affected = (projectsDependencyPaths.Force ()) |> List.choose affectedProjectDependencyPaths
         transact (fun () -> cTabLatestDoneMap.[Development] <- None)
         transact (fun () -> cTabLatestDoneMap.[CommittingPushing] <- None)

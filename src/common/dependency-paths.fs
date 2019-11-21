@@ -8,7 +8,7 @@ type DependencyType = | Self | PackageDependency of int | ProjectDependency of i
 
 type DependencyInfo = { ProjectName : string ; DependencyType : DependencyType }
 
-type DependencyPath = | DependencyPath of DependencyInfo list
+type DependencyPath = DependencyInfo list
 
 type ProjectDependencyPaths = { ProjectName : string ; DependencyPaths : DependencyPath list }
 
@@ -27,13 +27,13 @@ let private dependencyPaths (projectDependencies:ProjectDependencies) =
             | ProjectReference projectName -> { ProjectName = projectName ; DependencyType = ProjectDependency depth })
     let rec traverse currentDepth (currentPaths:DependencyPath list) =
         currentPaths
-        |> List.map (fun (DependencyPath currentPath) ->
+        |> List.map (fun currentPath ->
             match currentPath with
-            | [] -> [ DependencyPath currentPath ]
+            | [] -> [ currentPath ]
             | h :: _ ->
                 let projectDependencies = findProjectDependencies h.ProjectName
                 let dependencies = projectDependencies.Dependencies
-                if dependencies.IsEmpty then [ DependencyPath currentPath ]
+                if dependencies.IsEmpty then [ currentPath ]
                 else
                     let currentDepth = currentDepth + 1
                     let directN = direct currentDepth dependencies
@@ -46,15 +46,15 @@ let private dependencyPaths (projectDependencies:ProjectDependencies) =
                                 let cyclicPath = (di.ProjectName :: (cyclicPath |> List.rev)) |> List.rev
                                 Some (cyclicPath |> concatenate " -> "))
                     if cycles.Length > 0 then failwithf "One or more cyclic dependencies detected: %s" (cycles |> concatenatePipe)
-                    let newPaths = directN |> List.map (fun di -> DependencyPath (di :: currentPath))
+                    let newPaths = directN |> List.map (fun di -> di :: currentPath)
                     newPaths |> traverse currentDepth)
         |> List.collect id
     let project = projectMap.[projectDependencies.ProjectName]
     let self = if project.Packaged then Some [ { ProjectName = project.Name ; DependencyType = Self } ] else None
     let direct1 = projectDependencies.Dependencies |> direct 1
     if direct1 |> List.exists (fun di -> di.ProjectName = project.Name) then failwithf "%s has one or more self-references" project.Name
-    let paths = direct1 |> List.map (fun di -> DependencyPath [ di ]) |> traverse 1
-    let dependencyPaths = match self with | Some self -> DependencyPath self :: paths | None -> paths
-    { ProjectName = project.Name ; DependencyPaths = dependencyPaths |> List.filter (fun (DependencyPath dp) -> not dp.IsEmpty) }
+    let paths = direct1 |> List.map (fun di -> [ di ]) |> traverse 1
+    let dependencyPaths = match self with | Some self -> self :: paths | None -> paths
+    { ProjectName = project.Name ; DependencyPaths = dependencyPaths |> List.filter (fun dp -> not dp.IsEmpty) }
 
 let projectsDependencyPaths = lazy (projectsDependencies |> List.map dependencyPaths)

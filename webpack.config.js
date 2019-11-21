@@ -32,7 +32,6 @@ var commonPlugins = [
 ];
 
 module.exports = {
-    // TODO-NMB?...In development, bundle styles together with the code so they can also trigger hot reloads; in production, put them in a separate CSS file.
     entry: { app: [resolve(config.fsharpEntry)] }
     , output: {
         path: resolve(config.outputDir)

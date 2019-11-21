@@ -38,12 +38,12 @@ let aAnalysis = adaptive {
     let! packagedProjectStatusMap = cPackagedProjectStatusMap |> AMap.toAVal
     let hasCodeChanges projectName = match packagedProjectStatusMap.TryFind projectName with | Some pps -> pps.HasCodeChanges | None -> false
     let affectedProjectDependencyPaths (projectDependencyPaths:ProjectDependencyPaths) =
-        let affectedDependencyPath (DependencyPath dependencyPath) =
+        let affectedDependencyPath (dependencyPath:DependencyPath) =
             match dependencyPath |> List.mapi (fun i di -> if hasCodeChanges di.ProjectName then Some i else None) |> List.choose id with
             | [] -> None
             | affectedIndices ->
                 let minAffectedIndex = affectedIndices |> List.min
-                dependencyPath |> List.skip minAffectedIndex |> DependencyPath |> Some
+                dependencyPath |> List.skip minAffectedIndex |> Some
         match projectDependencyPaths.DependencyPaths |> List.choose affectedDependencyPath with
         | [] -> None
         | affectedDependencyPaths ->
@@ -53,21 +53,21 @@ let aAnalysis = adaptive {
                     -- so maybe handle appropriately when displaying analysis?... *)
             (*let affectedDependencyPaths =
                 affectedDependencyPaths
-                |> List.filter (fun (DependencyPath dp) ->
+                |> List.filter (fun dp ->
                     let selfOrDirect = dp |> List.last
                     match selfOrDirect.DependencyType with | ProjectDependency _ -> false | _ -> true)
             if affectedDependencyPaths.Length = 0 then None
             else*)
                 let uniqueSelfOrDirectWithMaxDepth =
                     affectedDependencyPaths
-                    |> List.groupBy (fun (DependencyPath dp) ->
+                    |> List.groupBy (fun dp ->
                         let selfOrDirect = dp |> List.last
                         selfOrDirect.ProjectName)
                     |> List.map (fun (_, dependencyPaths) ->
                         dependencyPaths
-                        |> List.map (fun (DependencyPath dp) ->
+                        |> List.map (fun dp ->
                             let deepest = dp |> List.head
-                            DependencyPath dp, depth deepest.DependencyType)
+                            dp, depth deepest.DependencyType)
                         |> List.maxBy snd)
                 let maxDepth = uniqueSelfOrDirectWithMaxDepth |> List.map snd |> List.max
                 Some ({ ProjectName = projectDependencyPaths.ProjectName ; DependencyPaths = uniqueSelfOrDirectWithMaxDepth |> List.map fst }, maxDepth)

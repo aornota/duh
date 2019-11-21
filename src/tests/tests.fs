@@ -78,11 +78,9 @@ let [<Tests>] adaptiveAnalysisScenarioTests =
                                 |> List.map (fun pdp ->
                                     let pathsSummary =
                                         pdp.DependencyPaths
-                                        |> List.map (
-                                            (fun (DependencyPath dp) -> dp)
-                                            >> (fun di ->
-                                                let selfOrDirect = di |> List.last
-                                                selfOrDirect.ProjectName, isPackageDependency selfOrDirect.DependencyType))
+                                        |> List.map (fun di ->
+                                            let selfOrDirect = di |> List.last
+                                            selfOrDirect.ProjectName, isPackageDependency selfOrDirect.DependencyType)
                                     pdp.ProjectName, pathsSummary)
                             ordinal, ordinalSummary)
                     Some (affectedSummary, currentTab, tabLatestDoneMap)
@@ -217,11 +215,10 @@ let [<Tests>] warningOnlyTests =
                 |> List.choose (fun pdp ->
                     let moreThanOnce =
                         pdp.DependencyPaths
-                        |> List.map (fun (DependencyPath dp) -> dp |> List.last)
+                        |> List.map (fun dp -> dp |> List.last)
                         |> List.filter (fun di -> isPackageDependency di.DependencyType)
                         |> List.filter (fun di ->
                             pdp.DependencyPaths
-                            |> List.map (fun (DependencyPath dp) -> dp)
                             |> List.filter (fun dp -> dp |> List.last <> di)
                             |> List.exists (fun dp -> dp |> List.exists (fun diOther -> isPackageDependency diOther.DependencyType && diOther.ProjectName = di.ProjectName)))
                     match moreThanOnce with

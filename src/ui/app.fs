@@ -135,8 +135,10 @@ let private analysis (affected:(int * ProjectDependencyPaths list) list) current
                     match currentTab with
                     | Development -> "build"
                     | CommittingPushing ->
-                        let action = match solution.Repo with | AzureDevOps -> "commit and push" | Subversion -> "commit"
-                        sprintf "%s changes for" action
+                        let selfChanged = selfOrDirects |> List.exists (fun di -> match di.DependencyType with | Self -> true | _ -> false)
+                        if selfChanged || packageDependencies.Length > 0 then
+                            sprintf "commit%s changes for" (match solution.Repo with | AzureDevOps -> " and push" | Subversion -> String.Empty)
+                        else "build"
                 [
                     if updatePackageReferences.Length > 0 then
                         yield! updatePackageReferences
@@ -184,7 +186,10 @@ let private analysis (affected:(int * ProjectDependencyPaths list) list) current
                 typography.paragraph false
                 if isDone then typography.color.textSecondary
                 typography.children [
-                    Html.text (sprintf "%s wait for updated %s package%s to be published" BULLET packages plural) ] ]
+                    Html.text (sprintf "%s wait for updated " BULLET)
+                    Html.strong packages
+                    Html.text (sprintf " package%s to be published" plural)
+                     ] ]
         if isNext then
             Mui.button [
                 button.variant.text

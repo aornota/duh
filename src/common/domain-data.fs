@@ -4,32 +4,36 @@ open Aornota.Duh.Common.Domain
 
 let [<Literal>] IS_SCENARIO_TEST_DATA = true
 
+let [<Literal>] PACKAGE_SOURCE__AZURE = "https://{duh}.pkgs.visualstudio.com/_packaging/{duh}/nuget/v3/index.json"
+let [<Literal>] PACKAGE_SOURCE__LOCAL = "source/packages"
+
 let solutionMap =
     [
-        { Name = "Domain" ; Repo = AzureDevOps ; RootPath = "source" ; Colour = Gold ; SortOrder = Some 1 }
-        { Name = "Infrastructure" ; Repo = AzureDevOps ; RootPath = "source" ; Colour = Tomato ; SortOrder = Some 2 }
+        { Name = "Domain" ; Repo = AzureDevOps ; Colour = Gold ; SortOrder = Some 1 }
+        { Name = "Infrastructure" ; Repo = AzureDevOps ; Colour = Tomato ; SortOrder = Some 2 }
 
-        { Name = "Shared" ; Repo = Subversion ; RootPath = "Shared" ; Colour = Plum ; SortOrder = None }
+        { Name = "Support" ; Repo = Subversion ; Colour = Plum ; SortOrder = None }
     ]
     |> List.map (fun sln -> sln.Name, sln) |> Map
 
 let projectMap =
     [
-        { Name = "Common.Interfaces" ; SolutionName = "Domain" ; ExtraPath = None ; Packaged = true }
-        { Name = "Common.Models" ; SolutionName = "Domain" ; ExtraPath = None ; Packaged = true }
-        { Name = "Common.Extensions" ; SolutionName = "Domain" ; ExtraPath = None ; Packaged = true }
-        { Name = "Product.Interfaces" ; SolutionName = "Domain" ; ExtraPath = None ; Packaged = true }
-        { Name = "Product.Models" ; SolutionName = "Domain" ; ExtraPath = None ; Packaged = true }
-        { Name = "Order.Interfaces" ; SolutionName = "Domain" ; ExtraPath = None ; Packaged = true }
-        { Name = "Order.Models" ; SolutionName = "Domain" ; ExtraPath = None ; Packaged = true }
-        { Name = "Order.Extensions" ; SolutionName = "Domain" ; ExtraPath = None ; Packaged = true }
-        { Name = "Infrastructure.Interfaces" ; SolutionName = "Domain" ; ExtraPath = None ; Packaged = true }
+        { Name = "Common.Interfaces" ; SolutionName = "Domain" ; Packaged = true }
+        { Name = "Common.Models" ; SolutionName = "Domain" ; Packaged = true }
+        { Name = "Common.Extensions" ; SolutionName = "Domain" ; Packaged = true }
+        { Name = "Product.Interfaces" ; SolutionName = "Domain" ; Packaged = true }
+        { Name = "Product.Models" ; SolutionName = "Domain" ; Packaged = true }
+        { Name = "Order.Interfaces" ; SolutionName = "Domain" ; Packaged = true }
+        { Name = "Order.Models" ; SolutionName = "Domain" ; Packaged = true }
+        { Name = "Order.Extensions" ; SolutionName = "Domain" ; Packaged = true }
+        { Name = "Infrastructure.Interfaces" ; SolutionName = "Domain" ; Packaged = true }
 
-        { Name = "Repositories" ; SolutionName = "Infrastructure" ; ExtraPath = None ; Packaged = true }
-        { Name = "Repositories.Tests" ; SolutionName = "Infrastructure" ; ExtraPath = None ; Packaged = false }
+        { Name = "Repositories" ; SolutionName = "Infrastructure" ; Packaged = true }
+        { Name = "Repositories.Tests" ; SolutionName = "Infrastructure" ; Packaged = false }
 
-        { Name = "Tools" ; SolutionName = "Shared" ; ExtraPath = Some "Non Production" ; Packaged = false }
-        { Name = "Tools.Tests" ; SolutionName = "Shared" ; ExtraPath = Some "Non Production" ; Packaged = false }
+        { Name = "Tools" ; SolutionName = "Support" ; Packaged = false }
+        { Name = "Tools.Extensions" ; SolutionName = "Support" ; Packaged = false }
+        { Name = "Tools.Tests" ; SolutionName = "Support" ; Packaged = false }
     ]
     |> List.map (fun proj -> proj.Name, proj) |> Map
 
@@ -109,14 +113,21 @@ let projectsDependencies =
             ProjectName = "Tools"
             Dependencies = [
                 PackageReference "Repositories"
-                PackageReference "Common.Extensions"
+            ] |> Set.ofList
+        }
+        {
+            ProjectName = "Tools.Extensions"
+            Dependencies = [
+                PackageReference "Order.Extensions"
+                ProjectReference "Tools"
             ] |> Set.ofList
         }
         {
             ProjectName = "Tools.Tests"
             Dependencies = [
-                PackageReference "Order.Extensions"
+                PackageReference "Common.Extensions"
                 ProjectReference "Tools"
+                ProjectReference "Tools.Extensions"
             ] |> Set.ofList
         }
     ]

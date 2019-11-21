@@ -22,12 +22,16 @@ let [<Literal>] private SOURCE = "VisualizerConsole.Visualizer"
 
 let private quoteName n = sprintf "\"%s\"" n
 
+let private isPackageReference = function | PackageReference _ -> true | ProjectReference _ -> false
+
+let private dependencyIsPackaged dependency = projectMap.[dependencyProjectName dependency].Packaged
+
 let private writeProjectDependencies writer (projectDependencies:ProjectDependencies) =
     let getNodes dependencies = dependencies |> List.map (dependencyProjectName >> quoteName) |> List.sort |> concatenateComma
     let fromNode = quoteName projectDependencies.ProjectName
     let packageReferences = projectDependencies.Dependencies |> List.ofSeq |> List.filter isPackageReference
     if packageReferences.Length > 0 then
-        let notPackaged = packageReferences |> List.filter (dependencyIsPackaged projectMap >> not)
+        let notPackaged = packageReferences |> List.filter (dependencyIsPackaged >> not)
         if notPackaged.Length > 0 then
             let errant = notPackaged |> List.map dependencyProjectName |> concatenatePipe
             failwithf "The following project/s are listed as package references for %s but are not packaged: %s" projectDependencies.ProjectName errant

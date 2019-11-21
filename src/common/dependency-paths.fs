@@ -57,4 +57,6 @@ let private dependencyPaths (projectDependencies:ProjectDependencies) =
     let dependencyPaths = match self with | Some self -> self :: paths | None -> paths
     { ProjectName = project.Name ; DependencyPaths = dependencyPaths |> List.filter (fun dp -> not dp.IsEmpty) }
 
+let isPackageDependency = function | PackageDependency _ -> true | _ -> false
+
 let projectsDependencyPaths = lazy (projectsDependencies |> List.map dependencyPaths)

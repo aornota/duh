@@ -4,6 +4,8 @@ open Aornota.Duh.Common.AdaptiveValues
 open Aornota.Duh.Common.ChangeableValues
 open Aornota.Duh.Common.DependencyPaths
 open Aornota.Duh.Common.Domain
+open Aornota.Duh.Common.DomainData
+open Aornota.Duh.Common.Utility
 
 open Browser.Dom
 
@@ -15,6 +17,8 @@ open Feliz.MaterialUI
 
 open FSharp.Data.Adaptive
 
+open System
+
 let [<Literal>] private DUH = "duh"
 
 // α | β | *γ* | δ | ε | ζ | η | θ | ι | κ | λ | μ | ν | ξ | ο | π | ρ | σ | τ | υ | φ | χ | ψ | ω
@@ -25,8 +29,12 @@ let [<Literal>] private VISUALIZATION_FILENAME = "visualization.svg" // note: ke
 
 let [<Literal>] private BULLET = "●"
 
+let private repoText = function | AzureDevOps -> "Azure DevOps" | Subversion -> "Subversion"
+
 let private projectColour = function
     | Gold -> color.gold | LightSkyBlue -> color.lightSkyBlue | Plum -> color.plum | SandyBrown -> color.sandyBrown | Tomato -> color.tomato | YellowGreen -> color.yellowGreen
+
+let private isProjectDependency = function | ProjectDependency _ -> true | _ -> false
 
 let private preamble =
     Html.div [
@@ -86,7 +94,7 @@ let private codeChanges (packagedProjectStatusMap:HashMap<string, PackagedProjec
             typography.paragraph false
             typography.color.secondary
             typography.children [
-                Html.text "Please select the packaged projects for which code changes have been made:" ] ]
+                Html.text "Please select the packaged projects for which code changes have been made locally:" ] ]
         Mui.grid [
             prop.style [ style.paddingTop 20 ; style.paddingLeft 20 ; style.paddingBottom 20 ]
             grid.container true
@@ -96,20 +104,68 @@ let private codeChanges (packagedProjectStatusMap:HashMap<string, PackagedProjec
 
 let private analysis (affected:(int * ProjectDependencyPaths list) list) currentTab latestDone =
     let latestDone = latestDone |> Option.defaultValue 0
-    (* TODO-NMB:
-        - Tab-specific notes?...
-        - Various UI improvements, e.g.:
-            -- better formatting... *)
     let step (ordinal, projectsDependencyPaths:ProjectDependencyPaths list) = [
-        let isDone = ordinal <= latestDone
-        let isNext = ordinal = latestDone + 1
-        let stepProject (projectDependencyPaths:ProjectDependencyPaths) =
+        let stepProject isDone (projectDependencyPaths:ProjectDependencyPaths) =
             let projectName = projectDependencyPaths.ProjectName
+            let solution = solutionMap.[projectMap.[projectName].SolutionName]
+            let selfOrDirects = projectDependencyPaths.DependencyPaths |> List.map (fun dp -> dp |> List.last)
+            let packageDependencies = selfOrDirects |> List.choose (fun di -> if isPackageDependency di.DependencyType then Some di.ProjectName else None)
+            let updatePackageReferences =
+                match packageDependencies with
+                | [] -> []
+                | _ ->
+                    let packages = packageDependencies |> List.sort |> concatenatePipe
+                    let plural = if packageDependencies.Length > 1 then "s" else String.Empty
+                    let source = match currentTab with | Development -> "local" | CommittingPushing -> "published"
+                    [
+                        Html.text (sprintf "%s update reference%s to %s (using the %s package source) for " BULLET plural packages source)
+                    ]
+            let projectDependenciesNotes =
+                match selfOrDirects |> List.choose (fun di -> if isProjectDependency di.DependencyType then Some di.ProjectName else None) with
+                | [] -> []
+                | projectDependencies ->
+                    let projects = projectDependencies |> List.sort |> concatenatePipe
+                    let projectReferences, plural = if projectDependencies.Length > 1 then "project references", "s" else "a project reference", String.Empty
+                    let also = if packageDependencies.Length > 0 then "also " else String.Empty
+                    [
+                        Html.text (sprintf "which %shas %s to the %s project%s updated above" also projectReferences projects plural)
+                    ]
+            let projectLines =
+                let action =
+                    match currentTab with
+                    | Development -> "build"
+                    | CommittingPushing ->
+                        let action = match solution.Repo with | AzureDevOps -> "commit and push" | Subversion -> "commit"
+                        sprintf "%s changes for" action
+                [
+                    if updatePackageReferences.Length > 0 then
+                        yield! updatePackageReferences
+                        Html.strong projectName
+                        Html.text (sprintf " (%s solution), then %s this project" solution.Name action)
+                        if projectDependenciesNotes.Length > 0 then
+                            Html.text " ("
+                            yield! projectDependenciesNotes
+                            Html.text ")"
+                    else
+                        Html.text (sprintf "%s %s " BULLET action)
+                        Html.strong projectName
+                        Html.text (sprintf " (%s solution)" solution.Name)
+                        if projectDependenciesNotes.Length > 0 then
+                            Html.text ", "
+                            yield! projectDependenciesNotes
+                ]
             Mui.typography [
+                prop.style [ style.paddingLeft 20 ]
                 typography.paragraph false
                 if isDone then typography.color.textSecondary
                 typography.children [
-                    Html.text (sprintf "%s (%s)" projectName (solution projectName).Name) ] ]
+                    yield! projectLines ] ]
+        let isDone = ordinal <= latestDone
+        let isNext = ordinal = latestDone + 1
+        let waitForPublish =
+            match currentTab with
+            | Development -> []
+            | CommittingPushing -> projectsDependencyPaths |> List.choose (fun pdp -> if projectMap.[pdp.ProjectName].Packaged then Some pdp.ProjectName else None)
         Mui.typography [
             typography.variant.h6
             typography.paragraph false
@@ -117,22 +173,49 @@ let private analysis (affected:(int * ProjectDependencyPaths list) list) current
             else if isNext then typography.color.primary
             typography.children [
                 Html.strong (sprintf "Step %i" ordinal) ] ]
-        yield! projectsDependencyPaths |> List.map stepProject
+        yield! projectsDependencyPaths |> List.map (stepProject isDone)
+        match waitForPublish with
+        | [] -> ()
+        | _ ->
+            let packages = waitForPublish |> List.sort |> concatenatePipe
+            let plural = if waitForPublish.Length > 1 then "s" else String.Empty
+            Mui.typography [
+                prop.style [ style.paddingLeft 20 ]
+                typography.paragraph false
+                if isDone then typography.color.textSecondary
+                typography.children [
+                    Html.text (sprintf "%s wait for updated %s package%s to be published" BULLET packages plural) ] ]
         if isNext then
             Mui.button [
                 button.variant.text
                 button.color.primary
                 prop.onClick (fun _ -> transact (fun () -> cTabLatestDoneMap.[currentTab] <- Some ordinal ))
                 button.children [ Html.text "Done" ] ] ]
-    let current = match currentTab with | Development -> "development" | CommittingPushing -> "committing / pushing"
-    Html.div [
-        prop.style [ style.paddingLeft 20 ; style.paddingBottom 20 ]
-        prop.children [
+    let tabNotes =
+        match currentTab with
+        | Development -> [
             Mui.typography [
                 typography.paragraph true
                 typography.children [
-                    Html.strong "TODO-NMB: "
-                    Html.text (sprintf "Specific notes about these %s instructions - plus various UI improvements..." current) ] ]
+                    Html.text "Please ensure that you have configured "
+                    Html.em (sprintf "/%s" PACKAGE_SOURCE__LOCAL)
+                    Html.text " as a local package source." ] ]
+            Mui.typography [
+                typography.paragraph true
+                typography.children [
+                    Html.text "You may decide to defer later steps, e.g. if you are confident that the projects involved will not be affected by the changes in the earlier steps."] ] ]
+        | CommittingPushing -> [
+            let eg = if IS_SCENARIO_TEST_DATA then "e.g. " else String.Empty
+            Mui.typography [
+                typography.paragraph true
+                typography.children [
+                    Html.text (sprintf "The published package source (%s " eg)
+                    Html.em PACKAGE_SOURCE__AZURE
+                    Html.text ") should already be configured." ] ] ]
+    Html.div [
+        prop.style [ style.paddingLeft 20 ; style.paddingBottom 20 ]
+        prop.children [
+            yield! tabNotes
             yield! affected |> List.map step |> List.collect id ] ]
 
 let private analysisTabs affected currentTab latestDone =

@@ -47,30 +47,19 @@ let aAnalysis = adaptive {
         match projectDependencyPaths.DependencyPaths |> List.choose affectedDependencyPath with
         | [] -> None
         | affectedDependencyPaths ->
-            (* TODO-NMB:
-                - Do we want to filter out direct-to-project dependencies?...
-                    -- can give weird results (e.g. for Common.Interfaces code changes, Repositories.Tests is in step 4 - but this has a project reference to Repositories, which is in step 5)...
-                    -- so maybe handle appropriately when displaying analysis?... *)
-            (*let affectedDependencyPaths =
+            let uniqueSelfOrDirectWithMaxDepth =
                 affectedDependencyPaths
-                |> List.filter (fun dp ->
+                |> List.groupBy (fun dp ->
                     let selfOrDirect = dp |> List.last
-                    match selfOrDirect.DependencyType with | ProjectDependency _ -> false | _ -> true)
-            if affectedDependencyPaths.Length = 0 then None
-            else*)
-                let uniqueSelfOrDirectWithMaxDepth =
-                    affectedDependencyPaths
-                    |> List.groupBy (fun dp ->
-                        let selfOrDirect = dp |> List.last
-                        selfOrDirect.ProjectName)
-                    |> List.map (fun (_, dependencyPaths) ->
-                        dependencyPaths
-                        |> List.map (fun dp ->
-                            let deepest = dp |> List.head
-                            dp, depth deepest.DependencyType)
-                        |> List.maxBy snd)
-                let maxDepth = uniqueSelfOrDirectWithMaxDepth |> List.map snd |> List.max
-                Some ({ ProjectName = projectDependencyPaths.ProjectName ; DependencyPaths = uniqueSelfOrDirectWithMaxDepth |> List.map fst }, maxDepth)
+                    selfOrDirect.ProjectName)
+                |> List.map (fun (_, dependencyPaths) ->
+                    dependencyPaths
+                    |> List.map (fun dp ->
+                        let deepest = dp |> List.head
+                        dp, depth deepest.DependencyType)
+                    |> List.maxBy snd)
+            let maxDepth = uniqueSelfOrDirectWithMaxDepth |> List.map snd |> List.max
+            Some ({ ProjectName = projectDependencyPaths.ProjectName ; DependencyPaths = uniqueSelfOrDirectWithMaxDepth |> List.map fst }, maxDepth)
     if packagedProjectStatusMap |> List.ofSeq |> List.map snd |> List.exists (fun pps -> pps.HasCodeChanges) then
         let! tabLatestDoneMap = cTabLatestDoneMap |> AMap.toAVal
         let affected =

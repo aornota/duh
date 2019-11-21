@@ -11,8 +11,6 @@ open Expecto
 
 open FSharp.Data.Adaptive
 
-let private isPackageDependency = function | PackageDependency _ -> true | _ -> false
-
 let [<Tests>] domainDataTests =
     testList "domain data tests" [
         test "no solutions in solutionMap that are not referenced in projectMap" {
@@ -98,11 +96,8 @@ let [<Tests>] adaptiveAnalysisScenarioTests =
                 (2, [
                     ("Repositories.Tests", [
                         ("Common.Extensions", true) ])
-                    ("Tools", [
-                        ("Common.Extensions", true) ]) ])
-                (3, [
                     ("Tools.Tests", [
-                        ("Tools", false) ]) ]) ]
+                        ("Common.Extensions", true) ]) ]) ]
             let mutable expectedCurrentTab = Development
             let mutable expectedTabLatestDoneMap = [(Development, None); (CommittingPushing, None)] |> HashMap.ofList
             Expect.equal (analysisSummary analysis) (Some (expectedAffectedSummary, expectedCurrentTab, expectedTabLatestDoneMap))
@@ -132,12 +127,16 @@ let [<Tests>] adaptiveAnalysisScenarioTests =
                         ("Common.Extensions", true)
                         ("Repositories", false) ])
                     ("Tools", [
-                        ("Common.Extensions", true)
                         ("Repositories", true) ]) ])
                 (4, [
-                    ("Tools.Tests", [
+                    ("Tools.Extensions", [
                         ("Order.Extensions", true)
-                        ("Tools", false) ]) ]) ]
+                        ("Tools", false) ]) ])
+                (5, [
+                    ("Tools.Tests", [
+                        ("Common.Extensions", true)
+                        ("Tools", false)
+                        ("Tools.Extensions", false) ]) ]) ]
             Expect.equal (analysisSummary analysis) (Some (expectedAffectedSummary, expectedCurrentTab, expectedTabLatestDoneMap))
                 "Different specific analysis expected - with current tab still CommittingPushing (with no steps marked as done) - after also marking Order.Models as having code changes"
 
@@ -166,12 +165,16 @@ let [<Tests>] adaptiveAnalysisScenarioTests =
                         ("Common.Extensions", true)
                         ("Repositories", false) ])
                     ("Tools", [
-                        ("Common.Extensions", true)
                         ("Repositories", true) ]) ])
                 (4, [
-                    ("Tools.Tests", [
+                    ("Tools.Extensions", [
                         ("Order.Extensions", true)
-                        ("Tools", false) ]) ]) ]
+                        ("Tools", false) ]) ])
+                (5, [
+                    ("Tools.Tests", [
+                        ("Common.Extensions", true)
+                        ("Tools", false)
+                        ("Tools.Extensions", false) ]) ]) ]
             Expect.equal (analysisSummary analysis) (Some (expectedAffectedSummary, expectedCurrentTab, expectedTabLatestDoneMap))
                 "Different specific analysis expected - with current tab still CommittingPushing (and step 1 still marked as done) - after also marking Repositories as having code changes"
 
@@ -194,11 +197,15 @@ let [<Tests>] adaptiveAnalysisScenarioTests =
                         ("Common.Extensions", true)
                         ("Repositories", false) ])
                     ("Tools", [
-                        ("Common.Extensions", true)
                         ("Repositories", true) ]) ])
                 (3, [
+                    ("Tools.Extensions", [
+                        ("Tools", false) ]) ])
+                (4, [
                     ("Tools.Tests", [
-                        ("Tools", false) ]) ]) ]
+                        ("Common.Extensions", true)
+                        ("Tools", false)
+                        ("Tools.Extensions", false) ]) ]) ]
             expectedTabLatestDoneMap <- [(Development, None); (CommittingPushing, None)] |> HashMap.ofList
             Expect.equal (analysisSummary analysis) (Some (expectedAffectedSummary, expectedCurrentTab, expectedTabLatestDoneMap))
                 "Different specific analysis expected - with current tab still CommittingPushing (but with no steps marked as done) - after marking Order.Models as not having code changes" } ]

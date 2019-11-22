@@ -60,7 +60,7 @@ let [<Tests>] domainDataTests =
 
 let [<Tests>] adaptiveAnalysisScenarioTests =
     testList "adaptive analysis scenario tests" [
-        // Note: This test will be skipped unless IS_SCENARIO_TEST_DATA (in ../src/common/domain-data.fs) is true.
+        // Note: This test will be skipped unless IS_SCENARIO_TEST_DATA (in ../common/domain-data.fs) is true.
         test "simple scenario" {
             if not IS_SCENARIO_TEST_DATA then skiptest "Test can only be run when domain data is scenario test data"
 

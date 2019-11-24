@@ -39,7 +39,7 @@ let private yarnTool = platformTool "yarn" "yarn.cmd"
 
 let private runTool cmd args workingDir =
     let arguments = args |> String.split ' ' |> Arguments.OfArgs
-    RawCommand(cmd, arguments)
+    RawCommand (cmd, arguments)
     |> CreateProcess.fromCommand
     |> CreateProcess.withWorkingDirectory workingDir
     |> CreateProcess.ensureExitCode

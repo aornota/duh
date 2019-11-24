@@ -710,10 +710,10 @@ STORAGE: NONE
 RESTRICTION: == netcoreapp3.0
 NUGET
   remote: https://api.nuget.org/v3/index.json
-    Adaptify.Core (0.0.3)
-      FSharp.Data.Adaptive (>= 0.0.7 < 0.1)
-    Adaptify.MSBuild (0.0.3)
-      Adaptify.Core (0.0.3)
+    Adaptify.Core (0.0.5)
+      FSharp.Data.Adaptive (>= 0.0.10 < 0.1)
+    Adaptify.MSBuild (0.0.5)
+      Adaptify.Core (0.0.5)
     Expecto (8.12)
       FSharp.Core (>= 4.3.4)
       Mono.Cecil (>= 0.10.3)
@@ -721,8 +721,9 @@ NUGET
       FSharp.Core (>= 4.6.2)
       Newtonsoft.Json (>= 12.0.2)
     FSharp.Core (4.7)
-    FSharp.Data.Adaptive (0.0.8)
+    FSharp.Data.Adaptive (0.0.10)
       FSharp.Core (>= 4.6.2)
+      System.Reflection.Emit.Lightweight (>= 4.6 < 4.7)
     Giraffe (4.0.1)
       FSharp.Core (>= 4.7)
       Microsoft.IO.RecyclableMemoryStream (>= 1.2.2)
@@ -971,10 +972,10 @@ STORAGE: NONE
 RESTRICTION: == netstandard2.0
 NUGET
   remote: https://api.nuget.org/v3/index.json
-    Adaptify.Core (0.0.3)
-      FSharp.Data.Adaptive (>= 0.0.7 < 0.1)
-    Adaptify.MSBuild (0.0.3)
-      Adaptify.Core (0.0.3)
+    Adaptify.Core (0.0.5)
+      FSharp.Data.Adaptive (>= 0.0.10 < 0.1)
+    Adaptify.MSBuild (0.0.5)
+      Adaptify.Core (0.0.5)
     Elmish (3.0.6)
       FSharp.Core (>= 4.6.2)
     Fable.Browser.Blob (1.1)
@@ -1018,22 +1019,26 @@ NUGET
       Feliz (>= 0.68 < 1.0)
       FSharp.Core (>= 4.7 < 5.0)
     FSharp.Core (4.7)
-    FSharp.Data.Adaptive (0.0.8)
+    FSharp.Data.Adaptive (0.0.10)
       FSharp.Core (>= 4.6.2)
+      System.Reflection.Emit.Lightweight (>= 4.6 < 4.7)
+    System.Reflection.Emit.ILGeneration (4.6)
+    System.Reflection.Emit.Lightweight (4.6)
+      System.Reflection.Emit.ILGeneration (>= 4.6)
     Thoth.Json (3.4.1)
       Fable.Core (>= 3.0)
       FSharp.Core (>= 4.6.2)
 GITHUB
   remote: krauthaufen/Fable.Elmish.Adaptive
-    FULLPROJECT (a91cb15d09e52a82c02039f2c8a5240e8a5c1dae)
-      Adaptify.MSBuild (>= 0.0.3 < 0.1)
+    FULLPROJECT (6653f8cd39b7132ed503fac54f3284f5fc3ad8f9)
+      Adaptify.MSBuild (>= 0.0.5 < 0.1)
       Elmish
       Fable.Browser.Dom (>= 1.1 < 1.2)
       Fable.Core (>= 3.1.1 < 3.2)
       Fable.Elmish.React (>= 3.0.1 < 3.1)
       Fable.Promise (>= 2.0 < 2.1)
       FSharp.Core (>= 4.7)
-      FSharp.Data.Adaptive (>= 0.0.8 < 0.1)
+      FSharp.Data.Adaptive (>= 0.0.10 < 0.1)
       Thoth.Json
 GROUP visualizer-console
 STORAGE: NONE

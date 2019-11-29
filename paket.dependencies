@@ -22,7 +22,7 @@ group tests
 
     nuget Expecto
 	nuget FSharp.Core
-    nuget FSharp.Data.Adaptive ~> 0.0.10
+    nuget FSharp.Data.Adaptive ~> 0.0.11
     nuget Adaptify.MSBuild ~> 0.0.5
     nuget Giraffe.SerilogExtensions
 	nuget Serilog
@@ -35,7 +35,7 @@ group ui
     framework: netstandard2.0
     storage: none
 
-    nuget FSharp.Data.Adaptive ~> 0.0.10
+    nuget FSharp.Data.Adaptive ~> 0.0.11
     nuget Adaptify.MSBuild ~> 0.0.5
     nuget Fable.Core
     nuget Feliz

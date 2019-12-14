@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
-        <TreatWarningsAsErrors>false</TreatWarningsAsErrors>  <!-- TEMP-NMB: Until Fable.React.Adaptive\JsHelpers.fs (from github) updated to prevent "This construct is deprecated" warnings... -->
+        <TreatWarningsAsErrors>false</TreatWarningsAsErrors>  <!-- TEMP-NMB: Until FSharp.Data.Adadptive updated to prevent "Cannot type test generic arguments" warnings... -->
     </PropertyGroup>
     <ItemGroup>
         <Compile Include="..\..\paket-files\ui\krauthaufen\Fable.Elmish.Adaptive\src\Fable.React.Adaptive\JsHelpers.fs" />

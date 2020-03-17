@@ -19,7 +19,7 @@ let private packagedProjectStatuses =
 let cPackagedProjectStatusMap = packagedProjectStatuses |> cmap
 
 let cCurrentTab = cval Development
-let cTabLatestDoneMap : ChangeableMap<AnalysisTab, int option> = [ (Development, None) ; (CommittingPushing, None) ] |> cmap
+let cTabLatestDoneMap : ChangeableHashMap<AnalysisTab, int option> = [ (Development, None) ; (CommittingPushing, None) ] |> cmap
 
 let cShowingVisualization = cval SHOW_VISUALIZATION__DEFAULT
 

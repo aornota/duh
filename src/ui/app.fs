@@ -233,7 +233,7 @@ let private analysisTabs affected currentTab latestDone =
             tab.label label
             tab.icon (
                 Mui.icon [
-                    icon.classes [ classes.icon.root iconClassName ]
+                    icon.classes.root iconClassName
                     if analysisTab = currentTab then icon.color.primary ])
             tab.value (tabValue analysisTab)
             prop.onClick (onClick analysisTab) ]

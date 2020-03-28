@@ -6,6 +6,7 @@
 		, ".ionide/": true
         , ".paket/": true
 		, "node_modules/": true
+		, "paket-files/": true
 		, "src/**/bin/": true
         , "src/**/obj/": true
 		, "src/ui/publish/": true
@@ -18,8 +19,7 @@
 		, "yarn-error.log": true
 		, "yarn.lock": true
 	}
-	,
-	"FSharp.fsacRuntime": "netcore",
-	"FSharp.suggestGitignore": false,
-	"FSharp.suggestSdkScripts": false
+	, "FSharp.fsacRuntime": "netcore"
+	, "FSharp.suggestGitignore": false
+	, "FSharp.suggestSdkScripts": false
 }

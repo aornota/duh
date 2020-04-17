@@ -72,9 +72,9 @@ let aAnalysis = adaptive {
                 maxDepth + 1, sorted)
         (* Note: Not entirely sure why this needs to be explicitly ignoed - but otherwise get a "This control construct may only be used if the computation expression builder
                  defines a 'Zero' method" compilation error. *)
-        (if Some affected <> lastAffected then resetLatestDone affected tabLatestDoneMap) |> ignore
+        let _ = if Some affected <> lastAffected then resetLatestDone affected tabLatestDoneMap
         return! AVal.map3 (fun a b c -> Some(a, b, c)) (AVal.constant affected) cCurrentTab (cTabLatestDoneMap |> AMap.toAVal)
     else
         lastAffected <- None
         analysisTabs |> List.iter (fun tab -> transact (fun () -> cTabLatestDoneMap.[tab] <- None))
-        return! AVal.constant None }
+        return None }

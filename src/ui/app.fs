@@ -302,8 +302,7 @@ let private app =
             preamble
             codeChanges packagedProjectStatusMap
             match analysis with
-            | Some (affected, currentTab, tabLatestDoneMap) ->
-                analysisTabs affected currentTab tabLatestDoneMap.[currentTab]
+            | Some (affected, currentTab, tabLatestDoneMap) -> analysisTabs affected currentTab tabLatestDoneMap.[currentTab]
             | None -> ()
             Mui.divider []
             visualization showingVisualization ])

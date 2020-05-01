@@ -307,4 +307,4 @@ let private app =
             Mui.divider []
             visualization showingVisualization ])
 
-ReactDOM.render (app, document.getElementById "app") // needs to match id of div in index.html
+ReactDOM.render (app (), document.getElementById "app") // needs to match id of div in index.html

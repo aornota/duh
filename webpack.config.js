@@ -52,7 +52,7 @@ module.exports = {
     }
     , plugins: isProduction
         ? commonPlugins.concat([
-            new copyWebpackPlugin([{ from: resolve(config.assetsDir) }])
+            new copyWebpackPlugin({ patterns: [{ from: resolve(config.assetsDir) }]})
         ])
         : commonPlugins.concat([
             new webpack.HotModuleReplacementPlugin()

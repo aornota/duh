@@ -8,20 +8,20 @@
     "dependencies": {
         "@material-ui/core": "^4.11.0",
         "@material-ui/lab": "^4.0.0-alpha.56",
-        "react": "^16.13.1",
-        "react-dom": "^16.13.1"
+        "react": "^16.14.0",
+        "react-dom": "^16.14.0"
     },
     "devDependencies": {
-        "@babel/core": "^7.11.4",
-        "@babel/preset-env": "^7.11.0",
-        "babel-loader": "^8.1.0",
-        "copy-webpack-plugin": "^6.0.4",
-        "core-js": "3.6.5",
-        "fable-compiler": "^2.11.0",
+        "@babel/core": "^7.12.7",
+        "@babel/preset-env": "^7.12.7",
+        "babel-loader": "^8.2.1",
+        "copy-webpack-plugin": "^6.3.2",
+        "core-js": "3.7.0",
+        "fable-compiler": "^2.13.0",
         "fable-loader": "^2.1.9",
-        "html-webpack-plugin": "^4.4.1",
+        "html-webpack-plugin": "^4.5.0",
         "remotedev": "^0.2.9",
-        "webpack": "^4.44.1",
+        "webpack": "^4.44.2",
         "webpack-cli": "^3.3.12",
         "webpack-dev-server": "^3.11.0"
     }

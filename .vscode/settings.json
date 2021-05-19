@@ -1,7 +1,8 @@
 {
 	"editor.fontSize": 12
 	, "files.exclude": {
-		".fable/": true
+		".config/": true
+		, ".fable/": true
 		, ".fake/": true
 		, ".ionide/": true
         , ".paket/": true
@@ -19,7 +20,6 @@
 		, "yarn-error.log": true
 		, "yarn.lock": true
 	}
-	, "FSharp.fsacRuntime": "netcore"
 	, "FSharp.suggestGitignore": false
 	, "FSharp.suggestSdkScripts": false
 }

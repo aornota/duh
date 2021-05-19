@@ -21,8 +21,8 @@ open System
 
 let [<Literal>] private DUH = "duh"
 
-// α | β | *γ* | δ | ε | ζ | η | θ | ι | κ | λ | μ | ν | ξ | ο | π | ρ | σ | τ | υ | φ | χ | ψ | ω
-let [<Literal>] private DUH_VERSION = "γ" // note: keep synchronized with  ./index.html | ../../package.json | ../../README.md
+// (α | β | γ | δ) | ε | ζ | η | θ | ι | κ | λ | μ | ν | ξ | ο | π | ρ | σ | τ | υ | φ | χ | ψ | ω
+let [<Literal>] private DUH_VERSION = "δ" // note: keep synchronized with  ./index.html | ../../package.json | ../../README.md
 
 let [<Literal>] private DUH_LOGO = "duh-24x24.png"
 let [<Literal>] private VISUALIZATION_FILENAME = "visualization.svg" // note: keep synchronized with ../visualizer-console/visualizer.fs and ../../build.fsx

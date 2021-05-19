@@ -1,4 +1,4 @@
-# ![duh](https://raw.githubusercontent.com/aornota/duh/master/src/ui/public/duh-24x24.png) | duh (γ)
+# ![duh](https://raw.githubusercontent.com/aornota/duh/master/src/ui/public/duh-24x24.png) | duh (δ)
 
 Work-in-progress experiments with FSharp.Data.Adaptive &c. (based on [Peter Keše's example](https://github.com/pkese/Fable.React.Adaptive.Counter)).
 
@@ -8,11 +8,9 @@ Work-in-progress experiments with FSharp.Data.Adaptive &c. (based on [Peter Keš
 
 #### Development prerequisites
 
-- [Microsoft .NET Core 3.1 SDK](https://dotnet.microsoft.com/download/dotnet-core/3.1/): I'm currently using 3.1.404
-- [FAKE 5](https://fake.build/): _dotnet tool install fake-cli --global_; I'm currently using 5.20.3
-- [Paket](https://fsprojects.github.io/Paket/): _dotnet tool install paket --global_; I'm currently using 5.257.0
+- [Microsoft .NET 5.0 SDK](https://dotnet.microsoft.com/download/dotnet/5.0): I'm currently using 5.0.203
 - [Yarn](https://yarnpkg.com/lang/en/docs/install/): I'm currently using 1.22.5
-- [Node.js (LTS)](https://nodejs.org/en/download/): I'm currently using 14.15.1
+- [Node.js (LTS)](https://nodejs.org/en/download/): I'm currently using 14.15.5
 
 ##### Also recommended
 
@@ -30,9 +28,13 @@ _[build.fsx](https://github.com/aornota/gibet/blob/master/build.fsx)_)
 
 #### Running / building / publishing / deploying
 
-- Run/watch for development (Debug): _fake build --target run_ (or _fake build -t run_)
-- Build for production (Release): _fake build --target build_ (or _fake build -t build_)
-- Publish to gh-pages (Release): _fake build --target publish-gh-pages_ (or _fake build -t publish-gh-pages_)
-- Run the tests (Release): _fake build --target run-tests_ (or _fake build -t run-tests_)
-- Run the visualizer console (Debug): _fake build --target run-visualizer-console_ (or _fake build -t run-visualizer-console_)
-- Help (lists key targets): _fake build --target help_ (or just _fake build_)
+- Before first running:
+    - _dotnet tool restore_
+    - _paket install_
+- Build targets:
+    - Run/watch for development (Debug): _dotnet fake build -t run_
+    - Build for production (Release): _dotnet fake build -t build_
+    - Publish to gh-pages (Release): _dotnet fake build -t publish-gh-pages_
+    - Run the tests (Release): _dotnet fake build -t run-tests_
+    - Run the visualizer console (Debug): _dotnet fake build -t run-visualizer-console_
+    - Help (lists key targets): _dotnet fake build -t help_ (or just _dotnet fake build_)

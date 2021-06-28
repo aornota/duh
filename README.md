@@ -30,7 +30,7 @@ _[build.fsx](https://github.com/aornota/gibet/blob/master/build.fsx)_)
 
 - Before first running:
     - _dotnet tool restore_
-    - _paket install_
+    - _dotnet paket install_
 - Build targets:
     - Run/watch for development (Debug): _dotnet fake build -t run_
     - Build for production (Release): _dotnet fake build -t build_

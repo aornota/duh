@@ -31,7 +31,7 @@ group tests
 group ui
 
     source https://api.nuget.org/v3/index.json
-    framework: netstandard2.0
+    framework: net5.0
     storage: none
 
     nuget FSharp.Data.Adaptive ~> 0.0.26

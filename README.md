@@ -8,9 +8,9 @@ Work-in-progress experiments with FSharp.Data.Adaptive &c. (based on [Peter Keš
 
 #### Development prerequisites
 
-- [Microsoft .NET 5.0 SDK](https://dotnet.microsoft.com/download/dotnet/5.0): I'm currently using 5.0.203
+- [Microsoft .NET 5.0 SDK](https://dotnet.microsoft.com/download/dotnet/5.0): I'm currently using 5.0.400
 - [Yarn](https://yarnpkg.com/lang/en/docs/install/): I'm currently using 1.22.5
-- [Node.js (LTS)](https://nodejs.org/en/download/): I'm currently using 14.15.5
+- [Node.js (LTS)](https://nodejs.org/en/download/): I'm currently using 14.17.5
 
 ##### Also recommended
 

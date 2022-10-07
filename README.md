@@ -1,4 +1,4 @@
-# ![duh](https://raw.githubusercontent.com/aornota/duh/master/src/ui/public/duh-24x24.png) | duh (δ)
+# ![duh](https://raw.githubusercontent.com/aornota/duh/master/src/ui/public/duh-24x24.png) | duh (ε)
 
 Work-in-progress experiments with FSharp.Data.Adaptive &c. (based on [Peter Keše's example](https://github.com/pkese/Fable.React.Adaptive.Counter)).
 
@@ -8,9 +8,9 @@ Work-in-progress experiments with FSharp.Data.Adaptive &c. (based on [Peter Keš
 
 #### Development prerequisites
 
-- [Microsoft .NET 5.0 SDK](https://dotnet.microsoft.com/download/dotnet/5.0): I'm currently using 5.0.400
-- [Yarn](https://yarnpkg.com/lang/en/docs/install/): I'm currently using 1.22.5
-- [Node.js (LTS)](https://nodejs.org/en/download/): I'm currently using 14.17.5
+- [Microsoft .NET 6.0 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/6.0): I'm currently using 6.0.304
+- [Yarn](https://yarnpkg.com/lang/en/docs/install/): I'm currently using 1.22.19
+- [Node.js (LTS)](https://nodejs.org/en/download/): I'm currently using 16.17.1
 
 ##### Also recommended
 

@@ -21,8 +21,8 @@ open System
 
 let [<Literal>] private DUH = "duh"
 
-// (α | β | γ | δ) | ε | ζ | η | θ | ι | κ | λ | μ | ν | ξ | ο | π | ρ | σ | τ | υ | φ | χ | ψ | ω
-let [<Literal>] private DUH_VERSION = "δ" // note: keep synchronized with  ./index.html | ../../package.json | ../../README.md
+// (α | β | γ | δ) | *ε* | ζ | η | θ | ι | κ | λ | μ | ν | ξ | ο | π | ρ | σ | τ | υ | φ | χ | ψ | ω
+let [<Literal>] private DUH_VERSION = "ε" // note: keep synchronized with  ./index.html | ../../package.json | ../../README.md
 
 let [<Literal>] private DUH_LOGO = "duh-24x24.png"
 let [<Literal>] private VISUALIZATION_FILENAME = "visualization.svg" // note: keep synchronized with ../visualizer-console/visualizer.fs and ../../build.fsx
@@ -67,8 +67,8 @@ let private packageCheckbox (packagedProjectStatus:PackagedProjectStatus) =
                 checkbox.checked' packagedProjectStatus.HasCodeChanges
                 prop.onClick onClick ]) ]
 
-let private solutionCodeChanges (solution:Solution, packagedProjectStatuses:(string * PackagedProjectStatus) list) =
-    let sorted = packagedProjectStatuses |> List.map snd |> List.sortBy (fun pps -> pps.ProjectName)
+let private solutionCodeChanges (solution:Solution, packagedProjectStatuses:PackagedProjectStatus list) =
+    let sorted = packagedProjectStatuses |> List.sortBy (fun pps -> sortOrder pps.SortOrder, pps.ProjectName)
     Mui.grid [
         grid.item true
         grid.children [
@@ -83,11 +83,10 @@ let private solutionCodeChanges (solution:Solution, packagedProjectStatuses:(str
                 formGroup.children [
                     yield! sorted |> List.map packageCheckbox ] ] ] ]
 
-let private codeChanges (packagedProjectStatusMap:HashMap<string, PackagedProjectStatus>) =
+let private codeChanges (packagedProjectStatuses:PackagedProjectStatus list) =
     let groupedAndSorted =
-        packagedProjectStatusMap
-        |> List.ofSeq
-        |> List.groupBy (fun (_, pps) -> solution pps.ProjectName)
+        packagedProjectStatuses
+        |> List.groupBy (fun pps -> solution pps.ProjectName)
         |> List.sortBy (fun (solution, _) -> solutionSortOrder solution, solution.Name)
     Html.div [
         Mui.typography [
@@ -107,7 +106,13 @@ let private analysis (affected:(int * ProjectDependencyPaths list) list) current
     let step (ordinal, projectsDependencyPaths:ProjectDependencyPaths list) = [
         let stepProject isDone (projectDependencyPaths:ProjectDependencyPaths) =
             let projectName = projectDependencyPaths.ProjectName
-            let solution = solutionMap.[projectMap.[projectName].SolutionName]
+            let project = projectMap.[projectName]
+            let testsProjectName, isTestsProject =
+                match project.ProjectType with
+                | Some (Packaged (_, Some testsProjectName)) -> Some testsProjectName, false
+                | Some Tests -> None, true
+                | _ -> None, false
+            let solution = solutionMap.[project.SolutionName]
             let selfOrDirects = projectDependencyPaths.DependencyPaths |> List.map (fun dp -> dp |> List.last)
             let packageDependencies = selfOrDirects |> List.choose (fun di -> if isPackageDependency di.DependencyType then Some di.ProjectName else None)
             let updatePackageReferences =
@@ -131,19 +136,25 @@ let private analysis (affected:(int * ProjectDependencyPaths list) list) current
                         Html.text (sprintf "which %shas %s to the %s project%s updated above" also projectReferences projects plural)
                     ]
             let projectLines =
+                let buildText = if isTestsProject then "build and run tests for" else "build"
                 let action =
                     match currentTab with
-                    | Development -> "build"
+                    | Development -> buildText
                     | CommittingPushing ->
                         let selfChanged = selfOrDirects |> List.exists (fun di -> match di.DependencyType with | Self -> true | _ -> false)
                         if selfChanged || packageDependencies.Length > 0 then
                             sprintf "commit%s changes for" (match solution.Repo with | AzureDevOps -> " and push" | Subversion -> String.Empty)
-                        else "build"
+                        else buildText
                 [
                     if updatePackageReferences.Length > 0 then
+                        let additionalAction =
+                            match currentTab, testsProjectName, isTestsProject with
+                            | CommittingPushing, Some testsProjectName, _ -> sprintf " run tests for %s (see below)," testsProjectName
+                            | CommittingPushing, _, true -> " build and run tests,"
+                            | _ -> String.Empty
                         yield! updatePackageReferences
                         Html.strong projectName
-                        Html.text (sprintf " (%s solution), then %s this project" solution.Name action)
+                        Html.text (sprintf " (%s solution),%s then %s this project" solution.Name additionalAction action)
                         if projectDependenciesNotes.Length > 0 then
                             Html.text " ("
                             yield! projectDependenciesNotes
@@ -167,7 +178,9 @@ let private analysis (affected:(int * ProjectDependencyPaths list) list) current
         let waitForPublish =
             match currentTab with
             | Development -> []
-            | CommittingPushing -> projectsDependencyPaths |> List.choose (fun pdp -> if projectMap.[pdp.ProjectName].Packaged then Some pdp.ProjectName else None)
+            | CommittingPushing ->
+                projectsDependencyPaths
+                |> List.choose (fun pdp -> match projectMap.[pdp.ProjectName].ProjectType with | Some (Packaged _) -> Some pdp.ProjectName | _ -> None)
         Mui.typography [
             typography.variant.h6
             typography.paragraph false
@@ -275,11 +288,11 @@ let private visualization showingVisualization =
                     Mui.typography [
                         typography.paragraph false
                         typography.children [
-                            Html.text (sprintf "%s projects are shown if they are packaged or if they have package references" BULLET) ] ]
+                            Html.text (sprintf "%s packaged projects are shown as oblongs" BULLET) ] ]
                     Mui.typography [
                         typography.paragraph false
                         typography.children [
-                            Html.text (sprintf "%s packaged projects are shown as oblongs" BULLET) ] ]
+                            Html.text (sprintf "%s tests projects are shown with a dashed border" BULLET) ] ]
                     Mui.typography [
                         typography.paragraph false
                         typography.children [
@@ -291,16 +304,16 @@ let private visualization showingVisualization =
                     Mui.typography [
                         typography.paragraph false
                         typography.children [
-                            Html.text (sprintf "%s dotted arrows indicate project references" BULLET) ] ] ] ] ]
+                            Html.text (sprintf "%s dashed arrows indicate project references" BULLET) ] ] ] ] ]
 
 let private app =
     React.functionComponent (fun () ->
-        let packagedProjectStatusMap = ReactHB.Hooks.useAdaptive cPackagedProjectStatusMap
+        let packagedProjectStatuses = ReactHB.Hooks.useAdaptive aPackagedProjectStatuses
         let analysis = ReactHB.Hooks.useAdaptive aAnalysis
         let showingVisualization = ReactHB.Hooks.useAdaptive cShowingVisualization
         Html.div [
             preamble
-            codeChanges packagedProjectStatusMap
+            codeChanges packagedProjectStatuses
             match analysis with
             | Some (affected, currentTab, tabLatestDoneMap) -> analysisTabs affected currentTab tabLatestDoneMap.[currentTab]
             | None -> ()

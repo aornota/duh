@@ -24,7 +24,7 @@ let private quoteName n = sprintf "\"%s\"" n
 
 let private isPackageReference = function | PackageReference _ -> true | ProjectReference _ -> false
 
-let private dependencyIsPackaged dependency = projectMap.[dependencyProjectName dependency].Packaged
+let private dependencyIsPackaged dependency = match projectMap.[dependencyProjectName dependency].ProjectType with | Some (Packaged _) -> true | _ -> false
 
 let private writeProjectDependencies writer (projectDependencies:ProjectDependencies) =
     let getNodes dependencies = dependencies |> List.map (dependencyProjectName >> quoteName) |> List.sort |> concatenateComma
@@ -54,9 +54,10 @@ let private createGraphvizInputFile (logger:ILogger) (inputFile:string) projects
     |> List.iter (fun pd->
         let fromNode = quoteName pd.ProjectName
         let project = projectMap.[pd.ProjectName]
-        let shape = if project.Packaged then "shape=box," else String.Empty
+        let shape = match project.ProjectType with | Some (Packaged _) -> "shape=box," | _ -> String.Empty
+        let border = match project.ProjectType with | Some Tests -> "dashed" | _ -> "solid"
         let colour = quoteName (solutionMap.[project.SolutionName].Colour.ToString().ToLower())
-        fprintfn writer "   %s [%scolor=%s,style=filled];" fromNode shape colour)
+        fprintfn writer "   %s [%sfillcolor=%s,style=\"filled,%s\"];" fromNode shape colour border)
     fprintfn writer "   }"
 
 let private startProcessAndCaptureStandardOutput (logger:ILogger) cmd cmdParams =

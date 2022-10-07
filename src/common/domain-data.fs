@@ -11,6 +11,7 @@ let solutionMap =
     [
         { Name = "Domain" ; Repo = AzureDevOps ; Colour = Gold ; SortOrder = Some 1 }
         { Name = "Infrastructure" ; Repo = AzureDevOps ; Colour = Tomato ; SortOrder = Some 2 }
+        { Name = "Services" ; Repo = AzureDevOps ; Colour = LightSkyBlue ; SortOrder = Some 3 }
 
         { Name = "Support" ; Repo = Subversion ; Colour = Plum ; SortOrder = None }
     ]
@@ -18,22 +19,33 @@ let solutionMap =
 
 let projectMap =
     [
-        { Name = "Common.Interfaces" ; SolutionName = "Domain" ; Packaged = true }
-        { Name = "Common.Models" ; SolutionName = "Domain" ; Packaged = true }
-        { Name = "Common.Extensions" ; SolutionName = "Domain" ; Packaged = true }
-        { Name = "Product.Interfaces" ; SolutionName = "Domain" ; Packaged = true }
-        { Name = "Product.Models" ; SolutionName = "Domain" ; Packaged = true }
-        { Name = "Order.Interfaces" ; SolutionName = "Domain" ; Packaged = true }
-        { Name = "Order.Models" ; SolutionName = "Domain" ; Packaged = true }
-        { Name = "Order.Extensions" ; SolutionName = "Domain" ; Packaged = true }
-        { Name = "Infrastructure.Interfaces" ; SolutionName = "Domain" ; Packaged = true }
+        { Name = "Common.Interfaces" ; SolutionName = "Domain" ; ProjectType = Some (Packaged (Some 1, None)) }
+        { Name = "Common.Models" ; SolutionName = "Domain" ; ProjectType = Some (Packaged (Some 2, Some "Common.Models.Tests")) }
+        { Name = "Common.Models.Tests" ; SolutionName = "Domain" ; ProjectType = Some Tests }
+        { Name = "Common.Extensions" ; SolutionName = "Domain" ; ProjectType = Some (Packaged (Some 3, Some "Common.Extensions.Tests")) }
+        { Name = "Common.Extensions.Tests" ; SolutionName = "Domain" ; ProjectType = Some Tests }
+        { Name = "Product.Interfaces" ; SolutionName = "Domain" ; ProjectType = Some (Packaged (Some 4, None)) }
+        { Name = "Product.Models" ; SolutionName = "Domain" ; ProjectType = Some (Packaged (Some 5, Some "Product.Models.Tests")) }
+        { Name = "Product.Models.Tests" ; SolutionName = "Domain" ; ProjectType = Some Tests }
+        { Name = "Product.Extensions" ; SolutionName = "Domain" ; ProjectType = Some (Packaged (Some 6, Some "Product.Extensions.Tests")) }
+        { Name = "Product.Extensions.Tests" ; SolutionName = "Domain" ; ProjectType = Some Tests }
+        { Name = "Order.Interfaces" ; SolutionName = "Domain" ; ProjectType = Some (Packaged (Some 7, None)) }
+        { Name = "Order.Models" ; SolutionName = "Domain" ; ProjectType = Some (Packaged (Some 8, Some "Order.Models.Tests")) }
+        { Name = "Order.Models.Tests" ; SolutionName = "Domain" ; ProjectType = Some Tests }
+        { Name = "Order.Extensions" ; SolutionName = "Domain" ; ProjectType = Some (Packaged (Some 9, Some "Order.Extensions.Tests")) }
+        { Name = "Order.Extensions.Tests" ; SolutionName = "Domain" ; ProjectType = Some Tests }
+        { Name = "Infrastructure.Interfaces" ; SolutionName = "Domain" ; ProjectType = Some (Packaged (Some 10, None)) }
 
-        { Name = "Repositories" ; SolutionName = "Infrastructure" ; Packaged = true }
-        { Name = "Repositories.Tests" ; SolutionName = "Infrastructure" ; Packaged = false }
+        { Name = "Repositories" ; SolutionName = "Infrastructure" ; ProjectType = Some (Packaged (None, Some "Repositories.Tests")) }
+        { Name = "Repositories.Tests" ; SolutionName = "Infrastructure" ; ProjectType = Some Tests }
 
-        { Name = "Tools" ; SolutionName = "Support" ; Packaged = false }
-        { Name = "Tools.Extensions" ; SolutionName = "Support" ; Packaged = false }
-        { Name = "Tools.Tests" ; SolutionName = "Support" ; Packaged = false }
+        { Name = "Services.Interfaces" ; SolutionName = "Services" ; ProjectType = Some (Packaged (Some 1, None)) }
+        { Name = "Services.Implementation" ; SolutionName = "Services" ; ProjectType = Some (Packaged (Some 2, Some "Services.Implementation.Tests")) }
+        { Name = "Services.Implementation.Tests" ; SolutionName = "Services" ; ProjectType = Some Tests }
+
+        { Name = "Tools" ; SolutionName = "Support" ; ProjectType = None }
+        { Name = "Tools.Extensions" ; SolutionName = "Support" ; ProjectType = None }
+        { Name = "Tools.Tests" ; SolutionName = "Support" ; ProjectType = Some Tests }
     ]
     |> List.map (fun proj -> proj.Name, proj) |> Map
 
@@ -50,9 +62,22 @@ let projectsDependencies =
             ] |> Set.ofList
         }
         {
+            ProjectName = "Common.Models.Tests"
+            Dependencies = [
+                ProjectReference "Common.Models"
+            ] |> Set.ofList
+        }
+        {
             ProjectName = "Common.Extensions"
             Dependencies = [
+                PackageReference "Common.Interfaces"
+            ] |> Set.ofList
+        }
+        {
+            ProjectName = "Common.Extensions.Tests"
+            Dependencies = [
                 PackageReference "Common.Models"
+                ProjectReference "Common.Extensions"
             ] |> Set.ofList
         }
         {
@@ -64,8 +89,28 @@ let projectsDependencies =
         {
             ProjectName = "Product.Models"
             Dependencies = [
-                PackageReference "Product.Interfaces"
                 PackageReference "Common.Models"
+                PackageReference "Product.Interfaces"
+            ] |> Set.ofList
+        }
+        {
+            ProjectName = "Product.Models.Tests"
+            Dependencies = [
+                ProjectReference "Product.Models"
+            ] |> Set.ofList
+        }
+        {
+            ProjectName = "Product.Extensions"
+            Dependencies = [
+                PackageReference "Common.Extensions"
+                PackageReference "Product.Interfaces"
+            ] |> Set.ofList
+        }
+        {
+            ProjectName = "Product.Extensions.Tests"
+            Dependencies = [
+                PackageReference "Product.Models"
+                ProjectReference "Product.Extensions"
             ] |> Set.ofList
         }
         {
@@ -82,9 +127,23 @@ let projectsDependencies =
             ] |> Set.ofList
         }
         {
+            ProjectName = "Order.Models.Tests"
+            Dependencies = [
+                ProjectReference "Order.Models"
+            ] |> Set.ofList
+        }
+        {
             ProjectName = "Order.Extensions"
             Dependencies = [
+                PackageReference "Common.Extensions"
+                PackageReference "Order.Interfaces"
+            ] |> Set.ofList
+        }
+        {
+            ProjectName = "Order.Extensions.Tests"
+            Dependencies = [
                 PackageReference "Order.Models"
+                ProjectReference "Order.Extensions"
             ] |> Set.ofList
         }
         {
@@ -104,8 +163,31 @@ let projectsDependencies =
         {
             ProjectName = "Repositories.Tests"
             Dependencies = [
-                PackageReference "Common.Extensions"
+                PackageReference "Order.Extensions"
+                PackageReference "Product.Extensions"
                 ProjectReference "Repositories"
+            ] |> Set.ofList
+        }
+
+        {
+            ProjectName = "Services.Interfaces"
+            Dependencies = [
+                PackageReference "Infrastructure.Interfaces"
+            ] |> Set.ofList
+        }
+        {
+            ProjectName = "Services.Implementation"
+            Dependencies = [
+                PackageReference "Order.Extensions"
+                PackageReference "Product.Extensions"
+                PackageReference "Services.Interfaces"
+            ] |> Set.ofList
+        }
+        {
+            ProjectName = "Services.Implementation.Tests"
+            Dependencies = [
+                PackageReference "Repositories"
+                ProjectReference "Services.Implementation"
             ] |> Set.ofList
         }
 
@@ -113,20 +195,18 @@ let projectsDependencies =
             ProjectName = "Tools"
             Dependencies = [
                 PackageReference "Repositories"
+                PackageReference "Services.Implementation"
             ] |> Set.ofList
         }
         {
             ProjectName = "Tools.Extensions"
             Dependencies = [
-                PackageReference "Order.Extensions"
                 ProjectReference "Tools"
             ] |> Set.ofList
         }
         {
             ProjectName = "Tools.Tests"
             Dependencies = [
-                PackageReference "Common.Extensions"
-                ProjectReference "Tools"
                 ProjectReference "Tools.Extensions"
             ] |> Set.ofList
         }

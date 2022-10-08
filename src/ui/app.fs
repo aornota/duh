@@ -149,7 +149,7 @@ let private analysis (affected:(int * ProjectDependencyPaths list) list) current
                     if updatePackageReferences.Length > 0 then
                         let additionalAction =
                             match currentTab, testsProjectName, isTestsProject with
-                            | CommittingPushing, Some testsProjectName, _ -> sprintf " run tests for %s (see below)," testsProjectName
+                            | _, Some testsProjectName, _ -> sprintf " run tests for %s (see below)," testsProjectName
                             | CommittingPushing, _, true -> " build and run tests,"
                             | _ -> String.Empty
                         yield! updatePackageReferences
@@ -161,9 +161,9 @@ let private analysis (affected:(int * ProjectDependencyPaths list) list) current
                             Html.text ")"
                     else
                         let additionalAction =
-                            match currentTab, testsProjectName with
-                            | CommittingPushing, Some testsProjectName -> sprintf "run tests for %s (see below), then " testsProjectName
-                            | _ -> String.Empty
+                            match testsProjectName with
+                            | Some testsProjectName -> sprintf "run tests for %s (see below), then " testsProjectName
+                            | None -> String.Empty
                         Html.text (sprintf "%s %s%s " BULLET additionalAction action)
                         Html.strong projectName
                         Html.text (sprintf " (%s solution)" solution.Name)

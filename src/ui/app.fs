@@ -160,7 +160,11 @@ let private analysis (affected:(int * ProjectDependencyPaths list) list) current
                             yield! projectDependenciesNotes
                             Html.text ")"
                     else
-                        Html.text (sprintf "%s %s " BULLET action)
+                        let additionalAction =
+                            match currentTab, testsProjectName with
+                            | CommittingPushing, Some testsProjectName -> sprintf "run tests for %s (see below), then " testsProjectName
+                            | _ -> String.Empty
+                        Html.text (sprintf "%s %s%s " BULLET additionalAction action)
                         Html.strong projectName
                         Html.text (sprintf " (%s solution)" solution.Name)
                         if projectDependenciesNotes.Length > 0 then

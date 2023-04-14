@@ -19,6 +19,7 @@ let solutionMap =
 
 let projectMap =
     [
+        // #region Domain solution
         { Name = "Common.Interfaces" ; SolutionName = "Domain" ; ProjectType = Some (Packaged (Some 1, None)) }
         { Name = "Common.Models" ; SolutionName = "Domain" ; ProjectType = Some (Packaged (Some 2, Some "Common.Models.Tests")) }
         { Name = "Common.Models.Tests" ; SolutionName = "Domain" ; ProjectType = Some Tests }
@@ -35,22 +36,30 @@ let projectMap =
         { Name = "Order.Extensions" ; SolutionName = "Domain" ; ProjectType = Some (Packaged (Some 9, Some "Order.Extensions.Tests")) }
         { Name = "Order.Extensions.Tests" ; SolutionName = "Domain" ; ProjectType = Some Tests }
         { Name = "Infrastructure.Interfaces" ; SolutionName = "Domain" ; ProjectType = Some (Packaged (Some 10, None)) }
+        // #endregion
 
+        // #region Infrastructur solution
         { Name = "Repositories" ; SolutionName = "Infrastructure" ; ProjectType = Some (Packaged (None, Some "Repositories.Tests")) }
         { Name = "Repositories.Tests" ; SolutionName = "Infrastructure" ; ProjectType = Some Tests }
+        // #endregion
 
+        // #region Services solution
         { Name = "Services.Interfaces" ; SolutionName = "Services" ; ProjectType = Some (Packaged (Some 1, None)) }
         { Name = "Services.Implementation" ; SolutionName = "Services" ; ProjectType = Some (Packaged (Some 2, Some "Services.Implementation.Tests")) }
         { Name = "Services.Implementation.Tests" ; SolutionName = "Services" ; ProjectType = Some Tests }
+        // #endregion
 
+        // #region Support solution
         { Name = "Tools" ; SolutionName = "Support" ; ProjectType = None }
         { Name = "Tools.Extensions" ; SolutionName = "Support" ; ProjectType = None }
         { Name = "Tools.Tests" ; SolutionName = "Support" ; ProjectType = Some Tests }
+        // #endregion
     ]
     |> List.map (fun proj -> proj.Name, proj) |> Map
 
 let projectsDependencies =
     [
+        // #region Domain solution
         {
             ProjectName = "Common.Interfaces"
             Dependencies = [] |> Set.ofList
@@ -152,7 +161,9 @@ let projectsDependencies =
                 PackageReference "Order.Interfaces"
             ] |> Set.ofList
         }
+        // #endregion
 
+        // #region Infrastructure solution
         {
             ProjectName = "Repositories"
             Dependencies = [
@@ -168,7 +179,9 @@ let projectsDependencies =
                 ProjectReference "Repositories"
             ] |> Set.ofList
         }
+        // #endregion
 
+        // #region Services solution
         {
             ProjectName = "Services.Interfaces"
             Dependencies = [
@@ -190,7 +203,9 @@ let projectsDependencies =
                 ProjectReference "Services.Implementation"
             ] |> Set.ofList
         }
+        // #endregion
 
+        // #region Support solution
         {
             ProjectName = "Tools"
             Dependencies = [
@@ -210,4 +225,5 @@ let projectsDependencies =
                 ProjectReference "Tools.Extensions"
             ] |> Set.ofList
         }
+        // #endregion
     ]
